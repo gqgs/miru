@@ -1,31 +1,9 @@
-package main
+package image
 
 import (
 	"image/jpeg"
-	"log"
 	"os"
 )
-
-func main() {
-	if err := do(); err != nil {
-		log.Fatal(err)
-	}
-}
-
-// Alternative Chi-Square
-func Compare(h1, h2 Histogram) float64 {
-	var result float64
-	for i := 0; i < 256; i++ {
-		result += (float64(h1.Red[i]) - float64(h2.Red[i])) / (float64(h1.Red[i]) + float64(h2.Red[i]))
-		result += (float64(h1.Green[i]) - float64(h2.Green[i])) / (float64(h1.Green[i]) + float64(h2.Green[i]))
-		result += (float64(h1.Blue[i]) - float64(h2.Blue[i])) / (float64(h1.Blue[i]) + float64(h2.Blue[i]))
-	}
-	return 2 * result
-}
-
-func do() error {
-	return nil
-}
 
 type Histogram struct {
 	Red   [256]uint
@@ -38,7 +16,22 @@ type Image struct {
 	Hist     Histogram
 }
 
-func imageLoad(filename string) (*Image, error) {
+func Compare(img1, img2 Image) float64 {
+	return compare(img1.Hist, img2.Hist)
+}
+
+// Alternative Chi-Square
+func compare(h1, h2 Histogram) float64 {
+	var result float64
+	for i := 0; i < 256; i++ {
+		result += (float64(h1.Red[i]) - float64(h2.Red[i])) / (float64(h1.Red[i]) + float64(h2.Red[i]))
+		result += (float64(h1.Green[i]) - float64(h2.Green[i])) / (float64(h1.Green[i]) + float64(h2.Green[i]))
+		result += (float64(h1.Blue[i]) - float64(h2.Blue[i])) / (float64(h1.Blue[i]) + float64(h2.Blue[i]))
+	}
+	return 2 * result
+}
+
+func Load(filename string) (*Image, error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err

@@ -1,3 +1,3 @@
-module go-miru
+module miru
 
 go 1.14
