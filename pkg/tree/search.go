@@ -91,6 +91,12 @@ func (t *Tree) search(nodeID int, img *image.Image) (Results, error) {
 	cmp1 := image.Compare(img, &dbImage1)
 	// TODO: handle accuracy: traverse both paths
 	if cmp0 < cmp1 {
+		if left == nil {
+			return Results{Result{
+				Filename: dbImage0.Filename,
+				Score:    cmp0,
+			}}, nil
+		}
 		res, err := t.search(*left, img)
 		if err != nil {
 			return nil, err
@@ -100,6 +106,12 @@ func (t *Tree) search(nodeID int, img *image.Image) (Results, error) {
 			Score:    cmp0,
 		})
 		return res, nil
+	}
+	if right == nil {
+		return Results{Result{
+			Filename: dbImage1.Filename,
+			Score:    cmp1,
+		}}, nil
 	}
 	res, err := t.search(*right, img)
 	if err != nil {

@@ -18,7 +18,7 @@ func (t *Tree) Add(path string) error {
 	if err != nil {
 		return err
 	}
-	defer t.tx.Rollback()
+	//defer t.tx.Rollback()
 
 	t.stmt, err = t.tx.Prepare(
 		`SELECT *

@@ -23,6 +23,11 @@ func Open(dbName string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	_, err = db.Exec(`PRAGMA synchronous = OFF`)
+	if err != nil {
+		return nil, err
+	}
+	_, err = db.Exec(`PRAGMA journal_mode = OFF`)
 
-	return db, nil
+	return db, err
 }
