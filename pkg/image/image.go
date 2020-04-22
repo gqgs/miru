@@ -2,6 +2,7 @@ package image
 
 import (
 	"image/jpeg"
+	"math"
 	"os"
 )
 
@@ -16,7 +17,11 @@ type Image struct {
 	Hist     Histogram
 }
 
-func Compare(img1, img2 Image) float64 {
+func (i Image) String() string {
+	return i.Filename
+}
+
+func Compare(img1, img2 *Image) float64 {
 	return compare(img1.Hist, img2.Hist)
 }
 
@@ -24,11 +29,17 @@ func Compare(img1, img2 Image) float64 {
 func compare(h1, h2 Histogram) float64 {
 	var result float64
 	for i := 0; i < 256; i++ {
-		result += (float64(h1.Red[i]) - float64(h2.Red[i])) / (float64(h1.Red[i]) + float64(h2.Red[i]))
-		result += (float64(h1.Green[i]) - float64(h2.Green[i])) / (float64(h1.Green[i]) + float64(h2.Green[i]))
-		result += (float64(h1.Blue[i]) - float64(h2.Blue[i])) / (float64(h1.Blue[i]) + float64(h2.Blue[i]))
+		if num := float64(h1.Red[i]) + float64(h2.Red[i]); num > 0 {
+			result += (float64(h1.Red[i]) - float64(h2.Red[i])) / num
+		}
+		if num := float64(h1.Green[i]) + float64(h2.Green[i]); num > 0 {
+			result += (float64(h1.Green[i]) - float64(h2.Green[i])) / num
+		}
+		if num := float64(h1.Blue[i]) + float64(h2.Blue[i]); num > 0 {
+			result += (float64(h1.Blue[i]) - float64(h2.Blue[i])) / num
+		}
 	}
-	return 2 * result
+	return math.Abs(2*result) / 3
 }
 
 func Load(filename string) (*Image, error) {

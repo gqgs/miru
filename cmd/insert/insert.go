@@ -1,14 +1,30 @@
 package main
 
 import (
-	"miru/pkg/database"
+	"log"
+	"miru/pkg/tree"
+	"os"
+	"path/filepath"
 )
 
 func insert(dbName, folder string) error {
-	db, err := database.Open(dbName)
+	tree, err := tree.New(dbName)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-	return nil
+	defer tree.Close()
+
+	err = filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.Mode().IsRegular() {
+			if err := tree.Add(path); err != nil {
+				log.Print(err)
+			}
+		}
+		return nil
+	})
+
+	return err
 }
