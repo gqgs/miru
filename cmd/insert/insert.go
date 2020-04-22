@@ -20,7 +20,7 @@ func insert(dbName, folder string) error {
 		}
 		if info.Mode().IsRegular() {
 			if err := tree.Add(path); err != nil {
-				log.Print(err)
+				log.Print(err, path)
 			}
 		}
 		return nil
