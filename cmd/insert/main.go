@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 )
 
 func main() {
-	var db = flag.String("db", "miru.db", "database name")
+	var db = flag.String("db", os.Getenv("MIRU_DB"), "database name")
 	var folder = flag.String("folder", ".", "target folder")
 	flag.Parse()
 
