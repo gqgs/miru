@@ -14,6 +14,13 @@ type Histogram struct {
 	Blue  [256]uint
 }
 
+// TODO: replace above
+type NormalizedHistogram struct {
+	Red   [256]float64
+	Green [256]float64
+	Blue  [256]float64
+}
+
 type Image struct {
 	Filename string
 	Hist     Histogram
@@ -30,18 +37,37 @@ func Compare(img1, img2 *Image) float64 {
 // Alternative Chi-Square
 func compare(h1, h2 Histogram) float64 {
 	var result float64
+	nh1 := normalize(h1)
+	nh2 := normalize(h2)
 	for i := 0; i < 256; i++ {
-		if num := float64(h1.Red[i]) + float64(h2.Red[i]); num > 0 {
-			result += (float64(h1.Red[i]) - float64(h2.Red[i])) / num
+		if num := (nh1.Red[i] + nh2.Red[i]); num > 0 {
+			result += math.Pow(nh1.Red[i]-nh2.Red[i], 2) / num
 		}
-		if num := float64(h1.Green[i]) + float64(h2.Green[i]); num > 0 {
-			result += (float64(h1.Green[i]) - float64(h2.Green[i])) / num
+		if num := (nh1.Green[i] + nh2.Green[i]); num > 0 {
+			result += math.Pow(nh1.Green[i]-nh2.Green[i], 2) / num
 		}
-		if num := float64(h1.Blue[i]) + float64(h2.Blue[i]); num > 0 {
-			result += (float64(h1.Blue[i]) - float64(h2.Blue[i])) / num
+		if num := (nh1.Blue[i] + nh2.Blue[i]); num > 0 {
+			result += math.Pow(nh1.Blue[i]-nh2.Blue[i], 2) / num
 		}
 	}
-	return math.Abs(2*result) / 3
+	return math.Abs(2 * result)
+}
+
+func normalize(h Histogram) NormalizedHistogram {
+	var normalized NormalizedHistogram
+	var sum uint
+	for i := 0; i < 256; i++ {
+		sum += h.Red[i] * h.Red[i]
+		sum += h.Green[i] * h.Green[i]
+		sum += h.Blue[i] * h.Blue[i]
+	}
+	norm := math.Sqrt(float64(sum))
+	for i := 0; i < 256; i++ {
+		normalized.Red[i] = float64(h.Red[i]) / norm
+		normalized.Green[i] = float64(h.Green[i]) / norm
+		normalized.Blue[i] = float64(h.Blue[i]) / norm
+	}
+	return normalized
 }
 
 func Load(filename string) (*Image, error) {

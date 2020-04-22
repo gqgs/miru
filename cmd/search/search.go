@@ -13,7 +13,7 @@ func search(dbName, fileName string, accuracy, limit int) error {
 	}
 	defer tree.Close()
 
-	res, err := tree.Search(fileName)
+	res, err := tree.Search(fileName, accuracy)
 	if err != nil {
 		return err
 	}
