@@ -1,7 +1,9 @@
 package tree
 
 import (
+	"math"
 	"miru/pkg/image"
+	"sync"
 )
 
 type Result struct {
@@ -29,7 +31,7 @@ func (r *Results) Pop() interface{} {
 
 // Search recursively traversals the tree to find the
 // images the most ressemble the input image
-func (t *Tree) Search(path string) (Results, error) {
+func (t *Tree) Search(path string, accuracy int) (Results, error) {
 	img, err := image.Load(path)
 	if err != nil {
 		return nil, err
@@ -45,10 +47,10 @@ func (t *Tree) Search(path string) (Results, error) {
 	}
 	defer t.stmt.Close()
 
-	return t.search(1, img)
+	return t.search(1, img, accuracy)
 }
 
-func (t *Tree) search(nodeID int, img *image.Image) (Results, error) {
+func (t *Tree) search(nodeID int, img *image.Image, accuracy int) (Results, error) {
 	var (
 		id     int
 		image0 *[]byte
@@ -87,38 +89,78 @@ func (t *Tree) search(nodeID int, img *image.Image) (Results, error) {
 	}
 	cmp0 := image.Compare(img, &dbImage0)
 	cmp1 := image.Compare(img, &dbImage1)
-	// TODO: handle accuracy: traverse both paths
-	if cmp0 < cmp1 {
-		if left == nil {
-			return Results{Result{
+	imagesAreDissimilar := math.Abs(cmp0-cmp1) >= float64(accuracy)
+	if imagesAreDissimilar {
+		if cmp0 < cmp1 {
+			if left == nil {
+				return Results{Result{
+					Filename: dbImage0.Filename,
+					Score:    cmp0,
+				}}, nil
+			}
+			res, err := t.search(*left, img, accuracy)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, Result{
 				Filename: dbImage0.Filename,
 				Score:    cmp0,
+			})
+			return res, nil
+		}
+		if right == nil {
+			return Results{Result{
+				Filename: dbImage1.Filename,
+				Score:    cmp1,
 			}}, nil
 		}
-		res, err := t.search(*left, img)
+		res, err := t.search(*right, img, accuracy)
 		if err != nil {
 			return nil, err
 		}
 		res = append(res, Result{
-			Filename: dbImage0.Filename,
-			Score:    cmp0,
-		})
-		return res, nil
-	}
-	if right == nil {
-		return Results{Result{
 			Filename: dbImage1.Filename,
 			Score:    cmp1,
-		}}, nil
+		})
+
+		return res, nil
 	}
-	res, err := t.search(*right, img)
-	if err != nil {
-		return nil, err
-	}
-	res = append(res, Result{
+
+	var res = Results{Result{
+		Filename: dbImage0.Filename,
+		Score:    cmp0,
+	}, Result{
 		Filename: dbImage1.Filename,
 		Score:    cmp1,
-	})
+	}}
+
+	var res0, res1 Results
+	var err0, err1 error
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		if left == nil {
+			return
+		}
+		res0, err0 = t.search(*left, img, accuracy)
+	}()
+	go func() {
+		defer wg.Done()
+		if right == nil {
+			return
+		}
+		res1, err1 = t.search(*right, img, accuracy)
+	}()
+	wg.Wait()
+	if err0 != nil {
+		return nil, err0
+	}
+	if err1 != nil {
+		return nil, err1
+	}
+	res = append(res, res0...)
+	res = append(res, res1...)
 
 	return res, nil
 }
