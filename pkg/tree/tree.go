@@ -37,7 +37,7 @@ func (t *Tree) Add(path string) error {
 }
 
 // recursively traversals the tree to find the
-// correct position for the image
+// correct insert position for the image
 func (t *Tree) add(nodeID int, img *image.Image) error {
 	var (
 		id     int

@@ -1,7 +1,9 @@
 package image
 
 import (
-	"image/jpeg"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"math"
 	"os"
 )
@@ -49,7 +51,7 @@ func Load(filename string) (*Image, error) {
 	}
 	defer file.Close()
 
-	img, err := jpeg.Decode(file)
+	img, _, err := image.Decode(file)
 	if err != nil {
 		return nil, err
 	}
