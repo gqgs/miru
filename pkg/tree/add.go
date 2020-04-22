@@ -14,13 +14,8 @@ func (t *Tree) Add(path string) error {
 	if err != nil {
 		return err
 	}
-	t.tx, err = t.db.Begin()
-	if err != nil {
-		return err
-	}
-	//defer t.tx.Rollback()
 
-	t.stmt, err = t.tx.Prepare(
+	t.stmt, err = t.db.Prepare(
 		`SELECT *
 		FROM tree
 		WHERE id = ?
@@ -30,11 +25,7 @@ func (t *Tree) Add(path string) error {
 	}
 	defer t.stmt.Close()
 
-	err = t.add(1, img)
-	if err != nil {
-		return err
-	}
-	return t.tx.Commit()
+	return t.add(1, img)
 }
 
 func (t *Tree) add(nodeID int, img *image.Image) error {
@@ -57,7 +48,7 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 			if err != nil {
 				return err
 			}
-			_, err = t.tx.Exec(`UPDATE tree SET image0 = ? WHERE id = ?`, data, nodeID)
+			_, err = t.db.Exec(`UPDATE tree SET image0 = ? WHERE id = ?`, data, nodeID)
 			return err
 		}
 		if image1 == nil {
@@ -65,7 +56,7 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 			if err != nil {
 				return err
 			}
-			_, err = t.tx.Exec(`UPDATE tree SET image1 = ? WHERE id = ?`, data, nodeID)
+			_, err = t.db.Exec(`UPDATE tree SET image1 = ? WHERE id = ?`, data, nodeID)
 			return err
 		}
 		var dbImage0, dbImage1 image.Image
@@ -83,7 +74,7 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 				if err != nil {
 					return err
 				}
-				_, err = t.tx.Exec("UPDATE tree SET left = ? WHERE id = ?", lastID, nodeID)
+				_, err = t.db.Exec("UPDATE tree SET left = ? WHERE id = ?", lastID, nodeID)
 				return err
 			}
 			return t.add(*left, img)
@@ -93,7 +84,7 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 			if err != nil {
 				return err
 			}
-			_, err = t.tx.Exec("UPDATE tree SET right = ? WHERE id = ?", lastID, nodeID)
+			_, err = t.db.Exec("UPDATE tree SET right = ? WHERE id = ?", lastID, nodeID)
 			return err
 		}
 		return t.add(*right, img)
@@ -106,7 +97,7 @@ func (t *Tree) createNode(img *image.Image) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	result, err := t.tx.Exec(`INSERT INTO tree (image0) VALUES (?)`, data)
+	result, err := t.db.Exec(`INSERT INTO tree (image0) VALUES (?)`, data)
 	if err != nil {
 		return 0, err
 	}

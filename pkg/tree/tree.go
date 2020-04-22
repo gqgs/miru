@@ -7,7 +7,6 @@ import (
 
 type Tree struct {
 	db   *sql.DB
-	tx   *sql.Tx
 	stmt *sql.Stmt
 }
 
