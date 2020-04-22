@@ -2,8 +2,6 @@ package tree
 
 import (
 	"miru/pkg/image"
-
-	"github.com/vmihailenco/msgpack/v4"
 )
 
 type Result struct {
@@ -67,7 +65,7 @@ func (t *Tree) search(nodeID int, img *image.Image) (Results, error) {
 		var res Results
 		for _, imgData := range []*[]byte{image0, image1} {
 			if imgData != nil {
-				if err := msgpack.Unmarshal(*imgData, &dbImage); err != nil {
+				if err := t.serializer.Unmarshal(*imgData, &dbImage); err != nil {
 					return nil, err
 				}
 				cmp := image.Compare(img, &dbImage)
@@ -81,10 +79,10 @@ func (t *Tree) search(nodeID int, img *image.Image) (Results, error) {
 	}
 	// invariant: node has 2 elements here
 	var dbImage0, dbImage1 image.Image
-	if err := msgpack.Unmarshal(*image0, &dbImage0); err != nil {
+	if err := t.serializer.Unmarshal(*image0, &dbImage0); err != nil {
 		return nil, err
 	}
-	if err := msgpack.Unmarshal(*image1, &dbImage1); err != nil {
+	if err := t.serializer.Unmarshal(*image1, &dbImage1); err != nil {
 		return nil, err
 	}
 	cmp0 := image.Compare(img, &dbImage0)

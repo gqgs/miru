@@ -3,8 +3,6 @@ package tree
 import (
 	"database/sql"
 	"miru/pkg/image"
-
-	"github.com/vmihailenco/msgpack/v4"
 )
 
 // Add recursively traversals the tree to find the
@@ -44,7 +42,7 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 		return err
 	case nil:
 		if image0 == nil {
-			data, err := msgpack.Marshal(img)
+			data, err := t.serializer.Marshal(img)
 			if err != nil {
 				return err
 			}
@@ -52,7 +50,7 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 			return err
 		}
 		if image1 == nil {
-			data, err := msgpack.Marshal(img)
+			data, err := t.serializer.Marshal(img)
 			if err != nil {
 				return err
 			}
@@ -60,10 +58,10 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 			return err
 		}
 		var dbImage0, dbImage1 image.Image
-		if err = msgpack.Unmarshal(*image0, &dbImage0); err != nil {
+		if err = t.serializer.Unmarshal(*image0, &dbImage0); err != nil {
 			return err
 		}
-		if err = msgpack.Unmarshal(*image1, &dbImage1); err != nil {
+		if err = t.serializer.Unmarshal(*image1, &dbImage1); err != nil {
 			return err
 		}
 		cmp0 := image.Compare(img, &dbImage0)
@@ -93,7 +91,7 @@ func (t *Tree) add(nodeID int, img *image.Image) error {
 }
 
 func (t *Tree) createNode(img *image.Image) (int64, error) {
-	data, err := msgpack.Marshal(img)
+	data, err := t.serializer.Marshal(img)
 	if err != nil {
 		return 0, err
 	}

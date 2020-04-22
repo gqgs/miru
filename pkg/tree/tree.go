@@ -2,12 +2,14 @@ package tree
 
 import (
 	"database/sql"
+	"miru/pkg/serialize"
 	"miru/pkg/tree/internal/database"
 )
 
 type Tree struct {
-	db   *sql.DB
-	stmt *sql.Stmt
+	db         *sql.DB
+	stmt       *sql.Stmt
+	serializer serialize.Serializer
 }
 
 // New creates a new tree
@@ -18,7 +20,8 @@ func New(dbName string) (*Tree, error) {
 		return nil, err
 	}
 	return &Tree{
-		db: db,
+		db:         db,
+		serializer: serialize.NewGzip(),
 	}, nil
 }
 
