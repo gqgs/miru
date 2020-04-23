@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"miru/pkg/serialize"
 	"miru/pkg/tree/internal/database"
+	"sync"
 )
 
 type Tree struct {
+	mu         sync.Mutex
 	db         *sql.DB
 	stmt       *sql.Stmt
 	serializer serialize.Serializer

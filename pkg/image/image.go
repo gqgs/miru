@@ -83,8 +83,9 @@ func Load(filename string) (*Image, error) {
 	}
 
 	var hist Histogram
-	for x := 0; x < img.Bounds().Max.X; x++ {
-		for y := 0; y < img.Bounds().Max.Y; y++ {
+	var bounds = img.Bounds()
+	for x := 0; x < bounds.Max.X; x++ {
+		for y := 0; y < bounds.Max.Y; y++ {
 			red, green, blue, _ := img.At(x, y).RGBA()
 			hist.Red[red>>8]++
 			hist.Green[green>>8]++

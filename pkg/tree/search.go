@@ -31,12 +31,8 @@ func (r *Results) Pop() interface{} {
 
 // Search recursively traversals the tree to find the
 // images the most ressemble the input image
-func (t *Tree) Search(path string, accuracy int) (Results, error) {
-	img, err := image.Load(path)
-	if err != nil {
-		return nil, err
-	}
-
+func (t *Tree) Search(img *image.Image, accuracy int) (Results, error) {
+	var err error
 	t.stmt, err = t.db.Prepare(
 		`SELECT *
 		FROM tree
@@ -134,6 +130,7 @@ func (t *Tree) search(nodeID int, img *image.Image, accuracy int) (Results, erro
 		Score:    cmp1,
 	}}
 
+	// TODO: check if access needs to be synced
 	var res0, res1 Results
 	var err0, err1 error
 	var wg sync.WaitGroup

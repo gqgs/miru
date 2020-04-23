@@ -7,12 +7,11 @@ import (
 
 // Add recursively traversals the tree to find the
 // correct insert position for the image
-func (t *Tree) Add(path string) error {
-	img, err := image.Load(path)
-	if err != nil {
-		return err
-	}
+func (t *Tree) Add(img *image.Image) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
 
+	var err error
 	t.stmt, err = t.db.Prepare(
 		`SELECT *
 		FROM tree
