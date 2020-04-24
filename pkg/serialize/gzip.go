@@ -3,9 +3,8 @@ package serialize
 import (
 	"bytes"
 	"compress/gzip"
+	"encoding/json"
 	"io/ioutil"
-
-	"github.com/vmihailenco/msgpack/v4"
 )
 
 type Gzip struct{}
@@ -15,7 +14,7 @@ func NewGzip() *Gzip {
 }
 
 func (g Gzip) Marshal(v interface{}) ([]byte, error) {
-	b, err := msgpack.Marshal(v)
+	b, err := json.Marshal(v)
 	if err != nil {
 		return nil, err
 	}
@@ -47,5 +46,5 @@ func (g Gzip) Unmarshal(b []byte, v interface{}) error {
 	if err := zipReader.Close(); err != nil {
 		return err
 	}
-	return msgpack.Unmarshal(decompressed, v)
+	return json.Unmarshal(decompressed, v)
 }
