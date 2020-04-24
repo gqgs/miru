@@ -15,9 +15,9 @@ type Histogram struct {
 	Blue  [256]uint
 
 	once            sync.Once
-	NormalizedRed   [256]float64
-	NormalizedGreen [256]float64
-	NormalizedBlue  [256]float64
+	NormalizedRed   [256]float64 `json:",omitempty"`
+	NormalizedGreen [256]float64 `json:",omitempty"`
+	NormalizedBlue  [256]float64 `json:",omitempty"`
 }
 
 func (h *Histogram) Normalize() {
