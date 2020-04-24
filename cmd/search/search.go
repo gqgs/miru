@@ -1,13 +1,12 @@
 package main
 
 import (
-	"container/heap"
 	"fmt"
 	"miru/pkg/image"
 	"miru/pkg/tree"
 )
 
-func search(dbName, filename string, accuracy, limit int) error {
+func search(dbName, filename string, accuracy, limit uint) error {
 	tree, err := tree.New(dbName)
 	if err != nil {
 		return err
@@ -24,8 +23,8 @@ func search(dbName, filename string, accuracy, limit int) error {
 		return err
 	}
 
-	for heap.Init(&res); len(res) > 0 && limit > 0; limit-- {
-		fmt.Println(heap.Pop(&res))
+	for _, top := range res.Top(limit) {
+		fmt.Println(top)
 	}
 	return nil
 }
