@@ -1,34 +1,70 @@
 package tree
 
-import "container/heap"
+import (
+	"container/heap"
+	"sort"
+)
 
-type result struct {
-	Filename string
-	Score    float64
+var (
+	maxHeapSorter = func(r1, r2 result) bool {
+		return r1.Score > r2.Score
+	}
+	increasingSorter = func(r1, r2 result) bool {
+		return r1.Score < r2.Score
+	}
+)
+
+type (
+	result struct {
+		Filename string
+		Score    float64
+	}
+
+	results []result
+
+	sorter struct {
+		r      results
+		sortBy func(r1, r2 result) bool
+	}
+)
+
+func (s sorter) Len() int           { return len(s.r) }
+func (s sorter) Less(i, j int) bool { return s.sortBy(s.r[i], s.r[j]) }
+func (s sorter) Swap(i, j int)      { s.r[i], s.r[j] = s.r[j], s.r[i] }
+
+func (s *sorter) Push(x interface{}) {
+	(*s).r = append((*s).r, x.(result))
 }
 
-type results []result
-
-func (r results) Len() int           { return len(r) }
-func (r results) Less(i, j int) bool { return r[i].Score < r[j].Score }
-func (r results) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
-
-func (r *results) Push(x interface{}) {
-	*r = append(*r, x.(result))
-}
-
-func (r *results) Pop() interface{} {
-	old := *r
+func (s *sorter) Pop() interface{} {
+	old := (*s).r
 	n := len(old)
 	x := old[n-1]
-	*r = old[0 : n-1]
+	(*s).r = old[0 : n-1]
 	return x
 }
 
 func (r results) Top(limit uint) results {
-	top := make(results, 0, limit)
-	for heap.Init(&r); len(r) > 0 && limit > 0; limit-- {
-		top = append(top, heap.Pop(&r).(result))
+	if len(r) <= int(limit) {
+		s := sorter{
+			r:      r,
+			sortBy: increasingSorter,
+		}
+		sort.Sort(s)
+		return s.r
 	}
-	return top
+	top := sorter{
+		r:      r[:limit],
+		sortBy: maxHeapSorter,
+	}
+	heap.Init(&top)
+	for _, res := range r[limit:] {
+		if res.Score < top.r[0].Score {
+			heap.Pop(&top)
+			heap.Push(&top, res)
+		}
+	}
+	top.sortBy = increasingSorter
+	sort.Sort(top)
+	return top.r
 }
