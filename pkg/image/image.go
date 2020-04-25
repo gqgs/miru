@@ -18,12 +18,12 @@ type Histogram struct {
 	Blue  [256]uint
 
 	once            sync.Once
-	NormalizedRed   [256]float64 `json:",omitempty"`
-	NormalizedGreen [256]float64 `json:",omitempty"`
-	NormalizedBlue  [256]float64 `json:",omitempty"`
+	normalizedRed   [256]float64
+	normalizedGreen [256]float64
+	normalizedBlue  [256]float64
 }
 
-func (h *Histogram) Normalize() {
+func (h *Histogram) normalize() {
 	h.once.Do(func() {
 		var sum uint
 		for i := 0; i < 256; i++ {
@@ -33,9 +33,9 @@ func (h *Histogram) Normalize() {
 		}
 		norm := math.Sqrt(float64(sum))
 		for i := 0; i < 256; i++ {
-			h.NormalizedRed[i] = float64(h.Red[i]) / norm
-			h.NormalizedGreen[i] = float64(h.Green[i]) / norm
-			h.NormalizedBlue[i] = float64(h.Blue[i]) / norm
+			h.normalizedRed[i] = float64(h.Red[i]) / norm
+			h.normalizedGreen[i] = float64(h.Green[i]) / norm
+			h.normalizedBlue[i] = float64(h.Blue[i]) / norm
 		}
 	})
 }
@@ -56,17 +56,17 @@ func Compare(img1, img2 *Image) float64 {
 // Alternative Chi-Square
 func compare(h1, h2 *Histogram) float64 {
 	var result float64
-	h1.Normalize()
-	h2.Normalize()
+	h1.normalize()
+	h2.normalize()
 	for i := 0; i < 256; i++ {
-		if num := (h1.NormalizedRed[i] + h2.NormalizedRed[i]); num > 0 {
-			result += math.Pow(h1.NormalizedRed[i]-h2.NormalizedRed[i], 2) / num
+		if num := (h1.normalizedRed[i] + h2.normalizedRed[i]); num > 0 {
+			result += math.Pow(h1.normalizedRed[i]-h2.normalizedRed[i], 2) / num
 		}
-		if num := (h1.NormalizedGreen[i] + h2.NormalizedGreen[i]); num > 0 {
-			result += math.Pow(h1.NormalizedGreen[i]-h2.NormalizedGreen[i], 2) / num
+		if num := (h1.normalizedGreen[i] + h2.normalizedGreen[i]); num > 0 {
+			result += math.Pow(h1.normalizedGreen[i]-h2.normalizedGreen[i], 2) / num
 		}
-		if num := (h1.NormalizedBlue[i] + h2.NormalizedBlue[i]); num > 0 {
-			result += math.Pow(h1.NormalizedBlue[i]-h2.NormalizedBlue[i], 2) / num
+		if num := (h1.normalizedBlue[i] + h2.normalizedBlue[i]); num > 0 {
+			result += math.Pow(h1.normalizedBlue[i]-h2.normalizedBlue[i], 2) / num
 		}
 	}
 	return math.Abs(2 * result)
