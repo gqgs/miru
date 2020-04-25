@@ -2,7 +2,7 @@ package storage
 
 import (
 	"database/sql"
-	"encoding/json"
+	"encoding"
 	"miru/pkg/compress"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -86,8 +86,8 @@ func (s *sqliteStorage) Get(nodeID int64) (*Node, error) {
 	return node, nil
 }
 
-func (s *sqliteStorage) SetObject(nodeID int64, position Position, obj interface{}) (err error) {
-	b, err := json.Marshal(obj)
+func (s *sqliteStorage) SetObject(nodeID int64, position Position, marshaler encoding.BinaryMarshaler) (err error) {
+	b, err := marshaler.MarshalBinary()
 	if err != nil {
 		return err
 	}
@@ -115,8 +115,8 @@ func (s *sqliteStorage) SetChild(nodeID int64, position Position, child int64) (
 	return
 }
 
-func (s *sqliteStorage) NewNode(obj interface{}) (nodeID int64, err error) {
-	b, err := json.Marshal(obj)
+func (s *sqliteStorage) NewNode(marshaler encoding.BinaryMarshaler) (nodeID int64, err error) {
+	b, err := marshaler.MarshalBinary()
 	if err != nil {
 		return 0, err
 	}

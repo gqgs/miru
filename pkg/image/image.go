@@ -1,7 +1,8 @@
 package image
 
 import (
-	"encoding/json"
+	"bytes"
+	"encoding/binary"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -14,9 +15,9 @@ import (
 )
 
 type Histogram struct {
-	Red   [256]uint
-	Green [256]uint
-	Blue  [256]uint
+	Red   [256]uint64
+	Green [256]uint64
+	Blue  [256]uint64
 
 	once            sync.Once
 	normalizedRed   [256]float64
@@ -26,7 +27,7 @@ type Histogram struct {
 
 func (h *Histogram) normalize() {
 	h.once.Do(func() {
-		var sum uint
+		var sum uint64
 		for i := 0; i < 256; i++ {
 			sum += h.Red[i] * h.Red[i]
 			sum += h.Green[i] * h.Green[i]
@@ -48,15 +49,85 @@ type Image struct {
 
 // Implements the Comparer interface
 func (i *Image) Compare(b []byte) (result float64, comparedElement string, err error) {
-	image := new(Image)
-	if err := json.Unmarshal(b, image); err != nil {
+	image, err := deserialize(b)
+	if err != nil {
 		return 0, "", err
 	}
+
 	return compare(i.Hist, image.Hist), image.String(), nil
 }
 
+// Implements the Stringer interface
 func (i Image) String() string {
 	return i.Filename
+}
+
+// Implements the BinaryMarshaler interface
+func (img *Image) MarshalBinary() ([]byte, error) {
+	var buffer bytes.Buffer
+	filenameBytes := []byte(img.Filename)
+	filenameLen := len(filenameBytes)
+
+	buffer.Grow(768*8 + filenameLen)
+	binBuffer := make([]byte, 8)
+	for i := 0; i < 256; i++ {
+		binary.PutUvarint(binBuffer, img.Hist.Red[i])
+		if _, err := buffer.Write(binBuffer); err != nil {
+			return nil, err
+		}
+	}
+	for i := 0; i < 256; i++ {
+		binary.PutUvarint(binBuffer, img.Hist.Green[i])
+		if _, err := buffer.Write(binBuffer); err != nil {
+			return nil, err
+		}
+	}
+	for i := 0; i < 256; i++ {
+		binary.PutUvarint(binBuffer, img.Hist.Blue[i])
+		if _, err := buffer.Write(binBuffer); err != nil {
+			return nil, err
+		}
+	}
+	binBuffer = append(filenameBytes[0:0], filenameBytes...)
+	if _, err := buffer.Write(binBuffer); err != nil {
+		return nil, err
+	}
+
+	return buffer.Bytes(), nil
+}
+
+func deserialize(b []byte) (*Image, error) {
+	img := new(Image)
+	img.Hist = new(Histogram)
+	binBuffer := make([]byte, 8)
+	reader := bytes.NewReader(b)
+	for i := 0; i < 256; i++ {
+		if _, err := reader.Read(binBuffer); err != nil {
+			return nil, err
+		}
+		value, _ := binary.Uvarint(binBuffer)
+		img.Hist.Red[i] = value
+	}
+	for i := 0; i < 256; i++ {
+		if _, err := reader.Read(binBuffer); err != nil {
+			return nil, err
+		}
+		value, _ := binary.Uvarint(binBuffer)
+		img.Hist.Green[i] = value
+	}
+	for i := 0; i < 256; i++ {
+		if _, err := reader.Read(binBuffer); err != nil {
+			return nil, err
+		}
+		value, _ := binary.Uvarint(binBuffer)
+		img.Hist.Blue[i] = value
+	}
+	binBuffer = make([]byte, reader.Len())
+	if _, err := reader.Read(binBuffer); err != nil {
+		return nil, err
+	}
+	img.Filename = string(binBuffer)
+	return img, nil
 }
 
 // Alternative Chi-Square

@@ -35,11 +35,27 @@ func Test_compare(t *testing.T) {
 	}
 }
 
+func Benchmark_ImageCompare(b *testing.B) {
+	img, err := Load("./testdata/jpeg_image.jpg")
+	if err != nil {
+		b.Fatal("err", err)
+	}
+	data, err := img.MarshalBinary()
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _, _ = img.Compare(data)
+	}
+}
+
 func Benchmark_compare(b *testing.B) {
 	img, err := Load("./testdata/jpeg_image.jpg")
 	if err != nil {
 		b.Fatal(err)
 	}
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = compare(img.Hist, img.Hist)
 	}
