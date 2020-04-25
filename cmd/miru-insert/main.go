@@ -6,13 +6,20 @@ import (
 	"os"
 )
 
+type options struct {
+	db       string
+	folder   string
+	parallel uint
+}
+
 func main() {
-	var db = flag.String("db", os.Getenv("MIRU_DB"), "database name")
-	var folder = flag.String("folder", ".", "target folder")
-	var parallel = flag.Uint("parallel", 10, "number of files to process in parallel")
+	var o options
+	flag.StringVar(&o.db, "db", os.Getenv("MIRU_DB"), "database name")
+	flag.StringVar(&o.folder, "folder", ".", "target folder")
+	flag.UintVar(&o.parallel, "parallel", 10, "number of files to process in parallel")
 	flag.Parse()
 
-	if err := insert(*db, *folder, *parallel); err != nil {
+	if err := insert(o); err != nil {
 		log.Fatal(err)
 	}
 }

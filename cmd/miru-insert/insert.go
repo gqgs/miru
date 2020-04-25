@@ -9,8 +9,8 @@ import (
 	"sync"
 )
 
-func insert(dbName, folder string, parallel uint) error {
-	tree, err := tree.New(dbName)
+func insert(o options) error {
+	tree, err := tree.New(o.db)
 	if err != nil {
 		return err
 	}
@@ -19,7 +19,7 @@ func insert(dbName, folder string, parallel uint) error {
 	var wg sync.WaitGroup
 	pathCh := make(chan string)
 	go func() {
-		semaphore := make(chan struct{}, parallel)
+		semaphore := make(chan struct{}, o.parallel)
 		for path := range pathCh {
 			path := path
 			semaphore <- struct{}{}
@@ -40,7 +40,7 @@ func insert(dbName, folder string, parallel uint) error {
 		}
 	}()
 
-	err = filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(o.folder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
