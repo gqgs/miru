@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestCompare(t *testing.T) {
+func Test_compare(t *testing.T) {
 	tests := []struct {
 		name     string
 		filename string
@@ -32,5 +32,15 @@ func TestCompare(t *testing.T) {
 				t.Errorf("Compare() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Benchmark_compare(b *testing.B) {
+	img, err := Load("./testdata/jpeg_image.jpg")
+	if err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < b.N; i++ {
+		_ = compare(img.Hist, img.Hist)
 	}
 }

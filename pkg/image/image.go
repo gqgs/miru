@@ -66,13 +66,13 @@ func compare(h1, h2 *Histogram) float64 {
 	h2.normalize()
 	for i := 0; i < 256; i++ {
 		if num := (h1.normalizedRed[i] + h2.normalizedRed[i]); num > 0 {
-			result += math.Pow(h1.normalizedRed[i]-h2.normalizedRed[i], 2) / num
+			result += (h1.normalizedRed[i] - h2.normalizedRed[i]) * (h1.normalizedRed[i] - h2.normalizedRed[i]) / num
 		}
 		if num := (h1.normalizedGreen[i] + h2.normalizedGreen[i]); num > 0 {
-			result += math.Pow(h1.normalizedGreen[i]-h2.normalizedGreen[i], 2) / num
+			result += (h1.normalizedGreen[i] - h2.normalizedGreen[i]) * (h1.normalizedGreen[i] - h2.normalizedGreen[i]) / num
 		}
 		if num := (h1.normalizedBlue[i] + h2.normalizedBlue[i]); num > 0 {
-			result += math.Pow(h1.normalizedBlue[i]-h2.normalizedBlue[i], 2) / num
+			result += (h1.normalizedBlue[i] - h2.normalizedBlue[i]) * (h1.normalizedBlue[i] - h2.normalizedBlue[i]) / num
 		}
 	}
 	return math.Abs(2 * result)
