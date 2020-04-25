@@ -1,29 +1,24 @@
-package serialization
+package compress
 
 import (
 	"bytes"
 	gzip "compress/gzip"
-	"encoding/json"
 	"io/ioutil"
 )
 
-type gzipSerializer struct{}
+type gzipCompressor struct{}
 
-func NewGzipSerializer() *gzipSerializer {
-	return &gzipSerializer{}
+func NewGzip() *gzipCompressor {
+	return &gzipCompressor{}
 }
 
-func (g gzipSerializer) Marshal(v interface{}) ([]byte, error) {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return nil, err
-	}
+func (g gzipCompressor) Compress(b []byte) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	gzipWriter := gzip.NewWriter(buf)
 	if _, err := gzipWriter.Write(b); err != nil {
 		return nil, err
 	}
-	if err = gzipWriter.Close(); err != nil {
+	if err := gzipWriter.Close(); err != nil {
 		return nil, err
 	}
 	compressed, err := ioutil.ReadAll(buf)
@@ -33,18 +28,19 @@ func (g gzipSerializer) Marshal(v interface{}) ([]byte, error) {
 	return compressed, nil
 }
 
-func (g gzipSerializer) Unmarshal(b []byte, v interface{}) error {
+func (g gzipCompressor) Decompress(b []byte) ([]byte, error) {
 	reader := bytes.NewReader(b)
 	gzipReader, err := gzip.NewReader(reader)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	decompressed, err := ioutil.ReadAll(gzipReader)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if err := gzipReader.Close(); err != nil {
-		return err
+		return nil, err
 	}
-	return json.Unmarshal(decompressed, v)
+
+	return decompressed, nil
 }

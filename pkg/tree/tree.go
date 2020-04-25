@@ -1,23 +1,25 @@
 package tree
 
 import (
-	"miru/pkg/serialization"
 	"miru/pkg/storage"
 	"sync"
 )
 
 type Tree struct {
-	mu         sync.Mutex
-	serializer serialization.Serializer
-	storage    storage.Storage
+	mu      sync.Mutex
+	storage storage.Storage
+}
+
+// Comparer receives an encoded version of the element stored in the tree
+// `distance` controls how the elements will be partitioned in the hyperplane
+type Comparer interface {
+	Compare(element []byte) (distance float64, comparedElement string, err error)
 }
 
 // New creates a new tree
-// It should be closed after being used
 // It consider the root element to have ID equals 1
 func New(storage storage.Storage) (*Tree, error) {
 	return &Tree{
-		storage:    storage,
-		serializer: serialization.NewGzipSerializer(),
+		storage: storage,
 	}, nil
 }

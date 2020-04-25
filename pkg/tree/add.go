@@ -1,82 +1,59 @@
 package tree
 
 import (
-	"miru/pkg/image"
 	"miru/pkg/storage"
 )
 
 // Add recursively traversals the tree to find the
 // correct insert position for the image
-func (t *Tree) Add(img *image.Image) error {
+func (t *Tree) Add(comparer Comparer) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	return t.add(1, img)
+	return t.add(1, comparer)
 }
 
-func (t *Tree) add(nodeID int64, img *image.Image) error {
+func (t *Tree) add(nodeID int64, comparer Comparer) error {
 	node, err := t.storage.Get(nodeID)
 	switch err {
 	case storage.ErrIsEmpty:
-		data, err := t.serializer.Marshal(img)
-		if err != nil {
-			return err
-		}
-		_, err = t.storage.NewNode(data)
+		_, err = t.storage.NewNode(comparer)
 		return err
 	case nil:
 		if node.LeftObject == nil {
-			data, err := t.serializer.Marshal(img)
-			if err != nil {
-				return err
-			}
-			err = t.storage.UpdateObject(nodeID, storage.Left, data)
+			err = t.storage.SetObject(nodeID, storage.Left, comparer)
 			return err
 		}
 		if node.RightObject == nil {
-			data, err := t.serializer.Marshal(img)
-			if err != nil {
-				return err
-			}
-			err = t.storage.UpdateObject(nodeID, storage.Right, data)
+			err = t.storage.SetObject(nodeID, storage.Right, comparer)
 			return err
 		}
-		var dbImage0, dbImage1 image.Image
-		if err = t.serializer.Unmarshal(*node.LeftObject, &dbImage0); err != nil {
+		var cmp0, cmp1 float64
+		if cmp0, _, err = comparer.Compare(*node.LeftObject); err != nil {
 			return err
 		}
-		if err = t.serializer.Unmarshal(*node.RightObject, &dbImage1); err != nil {
+		if cmp1, _, err = comparer.Compare(*node.RightObject); err != nil {
 			return err
 		}
-		cmp0 := image.Compare(img, &dbImage0)
-		cmp1 := image.Compare(img, &dbImage1)
 		if cmp0 < cmp1 {
 			if node.LeftChild == nil {
-				data, err := t.serializer.Marshal(img)
+				lastID, err := t.storage.NewNode(comparer)
 				if err != nil {
 					return err
 				}
-				lastID, err := t.storage.NewNode(data)
-				if err != nil {
-					return err
-				}
-				err = t.storage.UpdateChild(nodeID, storage.Left, lastID)
+				err = t.storage.SetChild(nodeID, storage.Left, lastID)
 				return err
 			}
-			return t.add(*node.LeftChild, img)
+			return t.add(*node.LeftChild, comparer)
 		}
 		if node.RightChild == nil {
-			data, err := t.serializer.Marshal(img)
+			lastID, err := t.storage.NewNode(comparer)
 			if err != nil {
 				return err
 			}
-			lastID, err := t.storage.NewNode(data)
-			if err != nil {
-				return err
-			}
-			err = t.storage.UpdateChild(nodeID, storage.Right, lastID)
+			err = t.storage.SetChild(nodeID, storage.Right, lastID)
 			return err
 		}
-		return t.add(*node.RightChild, img)
+		return t.add(*node.RightChild, comparer)
 	}
 	return err
 }

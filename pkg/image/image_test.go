@@ -28,7 +28,7 @@ func TestCompare(t *testing.T) {
 			if err != nil {
 				log.Fatalf("%s: %s", err, tt.filename)
 			}
-			if got := Compare(img, img); got != tt.want {
+			if got := compare(img.Hist, img.Hist); got != tt.want {
 				t.Errorf("Compare() = %v, want %v", got, tt.want)
 			}
 		})

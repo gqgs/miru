@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"miru/pkg/compress"
 	"miru/pkg/image"
 	"miru/pkg/storage"
 	"miru/pkg/tree"
@@ -9,7 +10,8 @@ import (
 )
 
 func search(o options) error {
-	sqliteStorage, err := storage.NewSqliteStorage(o.db)
+	compressor := compress.NewGzip()
+	sqliteStorage, err := storage.NewSqliteStorage(o.db, compressor)
 	if err != nil {
 		return err
 	}

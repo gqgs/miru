@@ -1,6 +1,7 @@
 package image
 
 import (
+	"encoding/json"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
@@ -45,12 +46,17 @@ type Image struct {
 	Hist     *Histogram
 }
 
-func (i Image) String() string {
-	return i.Filename
+// Implements the Comparer interface
+func (i *Image) Compare(b []byte) (result float64, comparedElement string, err error) {
+	image := new(Image)
+	if err := json.Unmarshal(b, image); err != nil {
+		return 0, "", err
+	}
+	return compare(i.Hist, image.Hist), image.String(), nil
 }
 
-func Compare(img1, img2 *Image) float64 {
-	return compare(img1.Hist, img2.Hist)
+func (i Image) String() string {
+	return i.Filename
 }
 
 // Alternative Chi-Square

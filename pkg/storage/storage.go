@@ -17,8 +17,8 @@ type Node struct {
 }
 
 type Storage interface {
-	Get(nodeID int64) (node Node, err error)
-	UpdateObject(nodeID int64, position Position, data interface{}) error
-	UpdateChild(nodeID int64, position Position, child int64) error
+	Get(nodeID int64) (node *Node, err error)
+	SetObject(nodeID int64, position Position, data interface{}) error
+	SetChild(nodeID int64, position Position, child int64) error
 	NewNode(data interface{}) (nodeID int64, err error)
 }
