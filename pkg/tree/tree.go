@@ -2,8 +2,9 @@ package tree
 
 import (
 	"encoding"
-	"miru/pkg/storage"
 	"sync"
+
+	"github.com/gqgs/miru/pkg/storage"
 )
 
 type Tree struct {

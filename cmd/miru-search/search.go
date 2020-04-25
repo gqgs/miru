@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"miru/pkg/compress"
-	"miru/pkg/image"
-	"miru/pkg/storage"
-	"miru/pkg/tree"
 	"os/exec"
+
+	"github.com/gqgs/miru/pkg/compress"
+	"github.com/gqgs/miru/pkg/image"
+	"github.com/gqgs/miru/pkg/storage"
+	"github.com/gqgs/miru/pkg/tree"
 )
 
 func search(o options) error {

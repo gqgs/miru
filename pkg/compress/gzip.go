@@ -2,7 +2,7 @@ package compress
 
 import (
 	"bytes"
-	gzip "compress/gzip"
+	"compress/gzip"
 	"io/ioutil"
 )
 

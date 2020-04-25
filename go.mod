@@ -1,4 +1,4 @@
-module miru
+module github.com/gqgs/miru
 
 go 1.14
 

@@ -3,7 +3,8 @@ package storage
 import (
 	"database/sql"
 	"encoding"
-	"miru/pkg/compress"
+
+	"github.com/gqgs/miru/pkg/compress"
 
 	_ "github.com/mattn/go-sqlite3"
 )

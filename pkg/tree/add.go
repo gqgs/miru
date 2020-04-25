@@ -1,7 +1,7 @@
 package tree
 
 import (
-	"miru/pkg/storage"
+	"github.com/gqgs/miru/pkg/storage"
 )
 
 // Add recursively traversals the tree to find the

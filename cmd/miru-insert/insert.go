@@ -2,13 +2,14 @@ package main
 
 import (
 	"log"
-	"miru/pkg/compress"
-	"miru/pkg/image"
-	"miru/pkg/storage"
-	"miru/pkg/tree"
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/gqgs/miru/pkg/compress"
+	"github.com/gqgs/miru/pkg/image"
+	"github.com/gqgs/miru/pkg/storage"
+	"github.com/gqgs/miru/pkg/tree"
 )
 
 func insert(o options) error {
