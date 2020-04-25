@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"miru/pkg/image"
 	"miru/pkg/tree"
+	"os/exec"
 )
 
-func search(dbName, filename string, accuracy, limit uint) error {
+func search(dbName, filename string, accuracy, limit uint, open bool) error {
 	tree, err := tree.New(dbName)
 	if err != nil {
 		return err
@@ -23,8 +24,14 @@ func search(dbName, filename string, accuracy, limit uint) error {
 		return err
 	}
 
-	for _, top := range res.Top(limit) {
-		fmt.Println(top)
+	top := res.Top(limit)
+	for _, t := range top {
+		fmt.Println(t)
 	}
+
+	if open && len(top) > 0 {
+		return exec.Command("xdg-open", top[0].Filename).Start()
+	}
+
 	return nil
 }
