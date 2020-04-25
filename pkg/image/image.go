@@ -4,8 +4,11 @@ import (
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
+	"io"
 	"math"
+	"net/http"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -70,11 +73,23 @@ func compare(h1, h2 *Histogram) float64 {
 }
 
 func Load(filename string) (*Image, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
+	var file io.ReadCloser
+	var err error
+	if isURL(filename) {
+		resp, err := http.Get(filename)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		file = resp.Body
+
+	} else {
+		file, err = os.Open(filename)
+		if err != nil {
+			return nil, err
+		}
+		defer file.Close()
 	}
-	defer file.Close()
 
 	img, _, err := image.Decode(file)
 	if err != nil {
@@ -96,4 +111,8 @@ func Load(filename string) (*Image, error) {
 		Filename: filename,
 		Hist:     &hist,
 	}, nil
+}
+
+func isURL(s string) bool {
+	return strings.HasPrefix(s, "https://") || strings.HasPrefix(s, "http://")
 }
