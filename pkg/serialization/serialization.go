@@ -1,4 +1,4 @@
-package serialize
+package serialization
 
 type Serializer interface {
 	Marshal(v interface{}) ([]byte, error)

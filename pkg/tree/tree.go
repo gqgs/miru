@@ -1,14 +1,14 @@
 package tree
 
 import (
-	"miru/pkg/serialize"
+	"miru/pkg/serialization"
 	"miru/pkg/storage"
 	"sync"
 )
 
 type Tree struct {
 	mu         sync.Mutex
-	serializer serialize.Serializer
+	serializer serialization.Serializer
 	storage    storage.Storage
 }
 
@@ -18,6 +18,6 @@ type Tree struct {
 func New(storage storage.Storage) (*Tree, error) {
 	return &Tree{
 		storage:    storage,
-		serializer: serialize.NewGzip(),
+		serializer: serialization.NewGzipSerializer(),
 	}, nil
 }
