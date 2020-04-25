@@ -9,36 +9,18 @@ import (
 // Search recursively traversals the tree to find the
 // images the most ressemble the input image
 func (t *Tree) Search(img *image.Image, accuracy uint) (results, error) {
-	var err error
-	t.stmt, err = t.db.Prepare(
-		`SELECT *
-		FROM tree
-		WHERE id = ?
-		`)
-	if err != nil {
-		return nil, err
-	}
-	defer t.stmt.Close()
-
 	return t.search(1, img, accuracy)
 }
 
-func (t *Tree) search(nodeID int, img *image.Image, accuracy uint) (results, error) {
-	var (
-		id     int
-		image0 *[]byte
-		image1 *[]byte
-		left   *int
-		right  *int
-	)
-
-	if err := t.stmt.QueryRow(nodeID).Scan(&id, &image0, &image1, &left, &right); err != nil {
+func (t *Tree) search(nodeID int64, img *image.Image, accuracy uint) (results, error) {
+	node, err := t.storage.Get(nodeID)
+	if err != nil {
 		return nil, err
 	}
-	if left == nil && right == nil {
+	if node.LeftChild == nil && node.RightChild == nil {
 		var dbImage image.Image
 		var res results
-		for _, imgData := range []*[]byte{image0, image1} {
+		for _, imgData := range []*[]byte{node.LeftObject, node.RightObject} {
 			if imgData != nil {
 				if err := t.serializer.Unmarshal(*imgData, &dbImage); err != nil {
 					return nil, err
@@ -54,10 +36,10 @@ func (t *Tree) search(nodeID int, img *image.Image, accuracy uint) (results, err
 	}
 	// invariant: node has 2 elements here
 	var dbImage0, dbImage1 image.Image
-	if err := t.serializer.Unmarshal(*image0, &dbImage0); err != nil {
+	if err := t.serializer.Unmarshal(*node.LeftObject, &dbImage0); err != nil {
 		return nil, err
 	}
-	if err := t.serializer.Unmarshal(*image1, &dbImage1); err != nil {
+	if err := t.serializer.Unmarshal(*node.RightObject, &dbImage1); err != nil {
 		return nil, err
 	}
 	cmp0 := image.Compare(img, &dbImage0)
@@ -65,13 +47,13 @@ func (t *Tree) search(nodeID int, img *image.Image, accuracy uint) (results, err
 	imagesAreDissimilar := math.Abs(cmp0-cmp1) >= float64(accuracy)
 	if imagesAreDissimilar {
 		if cmp0 < cmp1 {
-			if left == nil {
+			if node.LeftChild == nil {
 				return results{result{
 					Filename: dbImage0.Filename,
 					Score:    cmp0,
 				}}, nil
 			}
-			res, err := t.search(*left, img, accuracy)
+			res, err := t.search(*node.LeftChild, img, accuracy)
 			if err != nil {
 				return nil, err
 			}
@@ -81,13 +63,13 @@ func (t *Tree) search(nodeID int, img *image.Image, accuracy uint) (results, err
 			})
 			return res, nil
 		}
-		if right == nil {
+		if node.RightChild == nil {
 			return results{result{
 				Filename: dbImage1.Filename,
 				Score:    cmp1,
 			}}, nil
 		}
-		res, err := t.search(*right, img, accuracy)
+		res, err := t.search(*node.RightChild, img, accuracy)
 		if err != nil {
 			return nil, err
 		}
@@ -107,24 +89,23 @@ func (t *Tree) search(nodeID int, img *image.Image, accuracy uint) (results, err
 		Score:    cmp1,
 	}}
 
-	// TODO: check if access needs to be synced
 	var res0, res1 results
 	var err0, err1 error
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		if left == nil {
+		if node.LeftChild == nil {
 			return
 		}
-		res0, err0 = t.search(*left, img, accuracy)
+		res0, err0 = t.search(*node.LeftChild, img, accuracy)
 	}()
 	go func() {
 		defer wg.Done()
-		if right == nil {
+		if node.RightChild == nil {
 			return
 		}
-		res1, err1 = t.search(*right, img, accuracy)
+		res1, err1 = t.search(*node.RightChild, img, accuracy)
 	}()
 	wg.Wait()
 	if err0 != nil {

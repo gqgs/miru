@@ -2,24 +2,24 @@ package serialize
 
 import (
 	"bytes"
-	"compress/gzip"
+	libZgip "compress/gzip"
 	"encoding/json"
 	"io/ioutil"
 )
 
-type Gzip struct{}
+type gzip struct{}
 
-func NewGzip() *Gzip {
-	return &Gzip{}
+func NewGzip() *gzip {
+	return &gzip{}
 }
 
-func (g Gzip) Marshal(v interface{}) ([]byte, error) {
+func (g gzip) Marshal(v interface{}) ([]byte, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return nil, err
 	}
 	buf := new(bytes.Buffer)
-	zipWriter := gzip.NewWriter(buf)
+	zipWriter := libZgip.NewWriter(buf)
 	if _, err := zipWriter.Write(b); err != nil {
 		return nil, err
 	}
@@ -33,9 +33,9 @@ func (g Gzip) Marshal(v interface{}) ([]byte, error) {
 	return compressed, nil
 }
 
-func (g Gzip) Unmarshal(b []byte, v interface{}) error {
+func (g gzip) Unmarshal(b []byte, v interface{}) error {
 	reader := bytes.NewReader(b)
-	zipReader, err := gzip.NewReader(reader)
+	zipReader, err := libZgip.NewReader(reader)
 	if err != nil {
 		return err
 	}

@@ -3,16 +3,22 @@ package main
 import (
 	"fmt"
 	"miru/pkg/image"
+	"miru/pkg/storage"
 	"miru/pkg/tree"
 	"os/exec"
 )
 
 func search(o options) error {
-	tree, err := tree.New(o.db)
+	sqliteStorage, err := storage.NewSqliteStorage(o.db)
 	if err != nil {
 		return err
 	}
-	defer tree.Close()
+	defer sqliteStorage.Close()
+
+	tree, err := tree.New(sqliteStorage)
+	if err != nil {
+		return err
+	}
 
 	img, err := image.Load(o.file)
 	if err != nil {

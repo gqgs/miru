@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"miru/pkg/image"
+	"miru/pkg/storage"
 	"miru/pkg/tree"
 	"os"
 	"path/filepath"
@@ -10,11 +11,16 @@ import (
 )
 
 func insert(o options) error {
-	tree, err := tree.New(o.db)
+	sqliteStorage, err := storage.NewSqliteStorage(o.db)
 	if err != nil {
 		return err
 	}
-	defer tree.Close()
+	defer sqliteStorage.Close()
+
+	tree, err := tree.New(sqliteStorage)
+	if err != nil {
+		return err
+	}
 
 	var wg sync.WaitGroup
 	pathCh := make(chan string)

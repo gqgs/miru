@@ -1,32 +1,23 @@
 package tree
 
 import (
-	"database/sql"
 	"miru/pkg/serialize"
-	"miru/pkg/tree/internal/database"
+	"miru/pkg/storage"
 	"sync"
 )
 
 type Tree struct {
 	mu         sync.Mutex
-	db         *sql.DB
-	stmt       *sql.Stmt
 	serializer serialize.Serializer
+	storage    storage.Storage
 }
 
 // New creates a new tree
 // It should be closed after being used
-func New(dbName string) (*Tree, error) {
-	db, err := database.Open(dbName)
-	if err != nil {
-		return nil, err
-	}
+// It consider the root element to have ID equals 1
+func New(storage storage.Storage) (*Tree, error) {
 	return &Tree{
-		db:         db,
+		storage:    storage,
 		serializer: serialize.NewGzip(),
 	}, nil
-}
-
-func (t *Tree) Close() error {
-	return t.db.Close()
 }

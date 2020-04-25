@@ -1,8 +1,8 @@
 package tree
 
 import (
-	"database/sql"
 	"miru/pkg/image"
+	"miru/pkg/storage"
 )
 
 // Add recursively traversals the tree to find the
@@ -10,93 +10,73 @@ import (
 func (t *Tree) Add(img *image.Image) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-
-	var err error
-	t.stmt, err = t.db.Prepare(
-		`SELECT *
-		FROM tree
-		WHERE id = ?
-		`)
-	if err != nil {
-		return err
-	}
-	defer t.stmt.Close()
-
 	return t.add(1, img)
 }
 
-func (t *Tree) add(nodeID int, img *image.Image) error {
-	var (
-		id     int
-		image0 *[]byte
-		image1 *[]byte
-		left   *int
-		right  *int
-	)
-
-	err := t.stmt.QueryRow(nodeID).Scan(&id, &image0, &image1, &left, &right)
+func (t *Tree) add(nodeID int64, img *image.Image) error {
+	node, err := t.storage.Get(nodeID)
 	switch err {
-	case sql.ErrNoRows:
-		_, err = t.createNode(img)
-		return err
-	case nil:
-		if image0 == nil {
-			data, err := t.serializer.Marshal(img)
-			if err != nil {
-				return err
-			}
-			_, err = t.db.Exec(`UPDATE tree SET image0 = ? WHERE id = ?`, data, nodeID)
+	case storage.ErrIsEmpty:
+		data, err := t.serializer.Marshal(img)
+		if err != nil {
 			return err
 		}
-		if image1 == nil {
+		_, err = t.storage.NewNode(data)
+		return err
+	case nil:
+		if node.LeftObject == nil {
 			data, err := t.serializer.Marshal(img)
 			if err != nil {
 				return err
 			}
-			_, err = t.db.Exec(`UPDATE tree SET image1 = ? WHERE id = ?`, data, nodeID)
+			err = t.storage.UpdateObject(nodeID, storage.Left, data)
+			return err
+		}
+		if node.RightObject == nil {
+			data, err := t.serializer.Marshal(img)
+			if err != nil {
+				return err
+			}
+			err = t.storage.UpdateObject(nodeID, storage.Right, data)
 			return err
 		}
 		var dbImage0, dbImage1 image.Image
-		if err = t.serializer.Unmarshal(*image0, &dbImage0); err != nil {
+		if err = t.serializer.Unmarshal(*node.LeftObject, &dbImage0); err != nil {
 			return err
 		}
-		if err = t.serializer.Unmarshal(*image1, &dbImage1); err != nil {
+		if err = t.serializer.Unmarshal(*node.RightObject, &dbImage1); err != nil {
 			return err
 		}
 		cmp0 := image.Compare(img, &dbImage0)
 		cmp1 := image.Compare(img, &dbImage1)
 		if cmp0 < cmp1 {
-			if left == nil {
-				lastID, err := t.createNode(img)
+			if node.LeftChild == nil {
+				data, err := t.serializer.Marshal(img)
 				if err != nil {
 					return err
 				}
-				_, err = t.db.Exec("UPDATE tree SET left = ? WHERE id = ?", lastID, nodeID)
+				lastID, err := t.storage.NewNode(data)
+				if err != nil {
+					return err
+				}
+				err = t.storage.UpdateChild(nodeID, storage.Left, lastID)
 				return err
 			}
-			return t.add(*left, img)
+			return t.add(*node.LeftChild, img)
 		}
-		if right == nil {
-			lastID, err := t.createNode(img)
+		if node.RightChild == nil {
+			data, err := t.serializer.Marshal(img)
 			if err != nil {
 				return err
 			}
-			_, err = t.db.Exec("UPDATE tree SET right = ? WHERE id = ?", lastID, nodeID)
+			lastID, err := t.storage.NewNode(data)
+			if err != nil {
+				return err
+			}
+			err = t.storage.UpdateChild(nodeID, storage.Right, lastID)
 			return err
 		}
-		return t.add(*right, img)
+		return t.add(*node.RightChild, img)
 	}
 	return err
-}
-
-func (t *Tree) createNode(img *image.Image) (int64, error) {
-	data, err := t.serializer.Marshal(img)
-	if err != nil {
-		return 0, err
-	}
-	result, err := t.db.Exec(`INSERT INTO tree (image0) VALUES (?)`, data)
-	if err != nil {
-		return 0, err
-	}
-	return result.LastInsertId()
 }
