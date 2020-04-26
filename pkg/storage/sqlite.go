@@ -17,7 +17,7 @@ type sqliteStorage struct {
 
 // Should be closed after being used
 func NewSqliteStorage(dbName string, compressor compress.Compressor) (*sqliteStorage, error) {
-	db, err := sql.Open("sqlite3", dbName)
+	db, err := sql.Open("sqlite3", dbName+"?_synchronous=off&_journal_mode=off")
 	if err != nil {
 		return nil, err
 	}
@@ -30,12 +30,6 @@ func NewSqliteStorage(dbName string, compressor compress.Compressor) (*sqliteSto
 			right INTEGER NULL
 		)
 	`); err != nil {
-		return nil, err
-	}
-	if _, err = db.Exec(`PRAGMA synchronous = OFF`); err != nil {
-		return nil, err
-	}
-	if _, err = db.Exec(`PRAGMA journal_mode = OFF`); err != nil {
 		return nil, err
 	}
 
