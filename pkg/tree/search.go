@@ -6,7 +6,7 @@ import (
 )
 
 // Search recursively traversals the tree to find the
-// images the most ressemble the input image
+// elements the most ressemble the input element
 func (t *Tree) Search(comparer Comparer, accuracy uint) (results, error) {
 	return t.search(1, comparer, accuracy)
 }
