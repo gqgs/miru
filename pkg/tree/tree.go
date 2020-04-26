@@ -21,8 +21,8 @@ type Comparer interface {
 
 // New creates a new tree
 // It consider the root element to have ID equals 1
-func New(storage storage.Storage) (*Tree, error) {
+func New(storage storage.Storage) *Tree {
 	return &Tree{
 		storage: storage,
-	}, nil
+	}
 }

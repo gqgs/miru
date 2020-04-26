@@ -20,10 +20,7 @@ func insert(o options) error {
 	}
 	defer sqliteStorage.Close()
 
-	tree, err := tree.New(sqliteStorage)
-	if err != nil {
-		return err
-	}
+	tree := tree.New(sqliteStorage)
 
 	var wg sync.WaitGroup
 	pathCh := make(chan string)
