@@ -1,6 +1,7 @@
 package image
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/binary"
 	"image"
@@ -12,6 +13,9 @@ import (
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/pierrre/imageutil"
+	"github.com/pixiv/go-libjpeg/jpeg"
 )
 
 type Histogram struct {
@@ -168,16 +172,28 @@ func Load(filename string) (*Image, error) {
 		defer file.Close()
 	}
 
-	img, _, err := image.Decode(file)
+	reader := bufio.NewReader(file)
+	magicNumber, err := reader.Peek(2)
+	if err != nil {
+		return nil, err
+	}
+
+	var img image.Image
+	if isJPEG := magicNumber[0] == 0xFF && magicNumber[1] == 0xD8; isJPEG {
+		img, err = jpeg.Decode(reader, &jpeg.DecoderOptions{})
+	} else {
+		img, _, err = image.Decode(reader)
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	var hist Histogram
 	var bounds = img.Bounds()
+	atFunc := imageutil.NewAtFunc(img)
 	for x := 0; x < bounds.Max.X; x++ {
 		for y := 0; y < bounds.Max.Y; y++ {
-			red, green, blue, _ := img.At(x, y).RGBA()
+			red, green, blue, _ := atFunc(x, y)
 			hist.Red[red>>8]++
 			hist.Green[green>>8]++
 			hist.Blue[blue>>8]++

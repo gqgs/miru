@@ -35,6 +35,12 @@ func Test_compare(t *testing.T) {
 	}
 }
 
+func Benchmark_Load(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, _ = Load("./testdata/jpeg_image.jpg")
+	}
+}
+
 func Benchmark_ImageCompare(b *testing.B) {
 	img, err := Load("./testdata/jpeg_image.jpg")
 	if err != nil {
