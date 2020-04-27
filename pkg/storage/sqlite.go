@@ -59,7 +59,7 @@ func (s *sqliteStorage) Get(nodeID int64) (*Node, error) {
 	err := s.stmt.QueryRow(nodeID).
 		Scan(&node.LeftObject, &node.RightObject, &node.LeftChild, &node.RightChild)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == sql.ErrNoRows && nodeID == 1 {
 			return nil, ErrIsEmpty
 		}
 		return nil, err
