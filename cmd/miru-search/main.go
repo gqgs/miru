@@ -8,12 +8,13 @@ import (
 )
 
 type options struct {
-	db       string
-	file     string
-	accuracy uint
-	limit    uint
-	open     bool
-	profile  bool
+	db         string
+	file       string
+	accuracy   uint
+	limit      uint
+	open       bool
+	profile    bool
+	compressor string
 }
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 	flag.UintVar(&o.limit, "limit", 10, "number of closest matches to display")
 	flag.BoolVar(&o.open, "open", false, "open closest match")
 	flag.BoolVar(&o.profile, "cpuprofile", false, "create CPU profile")
+	flag.StringVar(&o.compressor, "compressor", "zstd", "compression algorithm")
 	flag.Parse()
 
 	if o.profile {

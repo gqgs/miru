@@ -13,7 +13,10 @@ import (
 )
 
 func insert(o options) error {
-	compressor := compress.NewGzip()
+	compressor, err := compress.NewCompressor(o.compressor)
+	if err != nil {
+		return err
+	}
 	sqliteStorage, err := storage.NewSqliteStorage(o.db, compressor)
 	if err != nil {
 		return err

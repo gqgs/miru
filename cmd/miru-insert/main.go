@@ -8,10 +8,11 @@ import (
 )
 
 type options struct {
-	db       string
-	folder   string
-	parallel uint
-	profile  bool
+	db         string
+	folder     string
+	parallel   uint
+	profile    bool
+	compressor string
 }
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
 	flag.StringVar(&o.folder, "folder", ".", "target folder")
 	flag.UintVar(&o.parallel, "parallel", 10, "number of files to process in parallel")
 	flag.BoolVar(&o.profile, "cpuprofile", false, "create CPU profile")
+	flag.StringVar(&o.compressor, "compressor", "zstd", "compression algorithm")
 	flag.Parse()
 
 	if o.profile {
