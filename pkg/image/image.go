@@ -191,8 +191,8 @@ func Load(filename string) (*Image, error) {
 	var hist Histogram
 	var bounds = img.Bounds()
 	atFunc := imageutil.NewAtFunc(img)
-	for x := 0; x < bounds.Max.X; x++ {
-		for y := 0; y < bounds.Max.Y; y++ {
+	for x := bounds.Min.X; x < bounds.Max.X; x++ {
+		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
 			red, green, blue, _ := atFunc(x, y)
 			hist.Red[red>>8]++
 			hist.Green[green>>8]++
