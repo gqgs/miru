@@ -53,7 +53,7 @@ type Image struct {
 
 // Implements the Comparer interface
 func (i *Image) Compare(b []byte) (result float64, comparedElement string, err error) {
-	image, err := deserialize(b)
+	image, err := Deserialize(b)
 	if err != nil {
 		return 0, "", err
 	}
@@ -100,7 +100,7 @@ func (img *Image) MarshalBinary() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func deserialize(b []byte) (*Image, error) {
+func Deserialize(b []byte) (*Image, error) {
 	img := new(Image)
 	img.Hist = new(Histogram)
 	binBuffer := make([]byte, 8)
