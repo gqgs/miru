@@ -2,6 +2,7 @@ package tree
 
 import (
 	"encoding"
+	"io"
 	"sync"
 
 	"github.com/gqgs/miru/pkg/storage"
@@ -10,6 +11,7 @@ import (
 type Tree struct {
 	mu      sync.Mutex
 	storage storage.Storage
+	writer  io.Writer
 }
 
 // Compare receives an encoded version of the element stored in the tree

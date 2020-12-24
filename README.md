@@ -1,6 +1,8 @@
 # miru
 Performant content-based image retrieval using generalized hyperplane trees [1].
 
+![miru](/assets/miru.png)
+
 ### Install
 
 ```
@@ -19,6 +21,13 @@ miru-insert --folder [folder]
 
 ```
 miru-search --file [path|url]
+```
+
+#### Displaying the tree
+
+```
+miru-plot --out digraph.dot
+dot -Tsvg digraph.dot -o miru.svg
 ```
 
 ### Performance 
