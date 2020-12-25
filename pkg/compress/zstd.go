@@ -1,6 +1,6 @@
 package compress
 
-import "github.com/DataDog/zstd"
+import "github.com/valyala/gozstd"
 
 func NewZstdCompressor() *zstdCompressor {
 	return &zstdCompressor{}
@@ -9,9 +9,9 @@ func NewZstdCompressor() *zstdCompressor {
 type zstdCompressor struct{}
 
 func (z zstdCompressor) Compress(b []byte) ([]byte, error) {
-	return zstd.Compress(nil, b)
+	return gozstd.Compress(nil, b), nil
 }
 
 func (z zstdCompressor) Decompress(b []byte) ([]byte, error) {
-	return zstd.Decompress(nil, b)
+	return gozstd.Decompress(nil, b)
 }
