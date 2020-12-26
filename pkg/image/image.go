@@ -15,7 +15,6 @@ import (
 	"sync"
 
 	"github.com/pierrre/imageutil"
-	"github.com/pixiv/go-libjpeg/jpeg"
 )
 
 type Histogram struct {
@@ -153,37 +152,53 @@ func compare(h1, h2 *Histogram) float64 {
 	return math.Abs(2 * result)
 }
 
-func Load(filename string) (*Image, error) {
-	var file io.ReadCloser
-	var err error
+func readFile(filename string) (io.ReadCloser, error) {
 	if isURL(filename) {
 		resp, err := http.Get(filename)
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
-		file = resp.Body
+		return resp.Body, nil
 
-	} else {
-		file, err = os.Open(filename)
-		if err != nil {
-			return nil, err
-		}
-		defer file.Close()
 	}
+	return os.Open(filename)
+}
 
-	reader := bufio.NewReader(file)
-	magicNumber, err := reader.Peek(2)
+func Load(filename string) (*Image, error) {
+	file, err := readFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var reader io.Reader
+	reader = bufio.NewReader(file)
+	magicNumber, err := reader.(*bufio.Reader).Peek(2)
 	if err != nil {
 		return nil, err
 	}
 
-	var img image.Image
-	if isJPEG := magicNumber[0] == 0xFF && magicNumber[1] == 0xD8; isJPEG {
-		img, err = jpeg.Decode(reader, &jpeg.DecoderOptions{})
-	} else {
-		img, _, err = image.Decode(reader)
+	if isJPEG := string(magicNumber) == string([]byte{0xFF, 0xD8}); isJPEG {
+		hist, err := decodeJpeg(reader)
+		if err == nil {
+			return &Image{
+				Filename: filename,
+				Hist:     hist,
+			}, nil
+		}
+
+		// Fallback to default decoder
+		// The body has been consumed already
+		// Therefore, we have to initilize it again
+		// This shouldn't happen too often so it's cheaper than keeping a copy of the body
+		reader, err = readFile(filename)
+		if err != nil {
+			return nil, err
+		}
+		defer reader.(io.Closer).Close()
 	}
+
+	img, _, err := image.Decode(reader)
 	if err != nil {
 		return nil, err
 	}
