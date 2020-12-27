@@ -10,3 +10,6 @@ insert:
 
 plot:
 	go install ./cmd/miru-plot/
+
+docker:
+	docker build -t miru .

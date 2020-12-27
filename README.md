@@ -9,6 +9,15 @@ Performant content-based image retrieval using generalized hyperplane trees [1].
 make install
 ```
 
+#### Docker
+
+```
+make docker
+docker run -v "$(pwd)":"$(pwd)" miru miru-insert --help
+docker run -v "$(pwd)":"$(pwd)" miru miru-search --help
+docker run -v "$(pwd)":"$(pwd)" miru miru-plot --help
+```
+
 ### Usage
 
 #### Index images
