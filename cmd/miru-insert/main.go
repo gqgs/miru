@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"runtime"
 	"runtime/pprof"
 )
 
@@ -19,7 +20,7 @@ func main() {
 	var o options
 	flag.StringVar(&o.db, "db", os.Getenv("MIRU_DB"), "database name")
 	flag.StringVar(&o.folder, "folder", ".", "target folder")
-	flag.UintVar(&o.parallel, "parallel", 10, "number of files to process in parallel")
+	flag.UintVar(&o.parallel, "parallel", uint(runtime.NumCPU()), "number of files to process in parallel")
 	flag.BoolVar(&o.profile, "cpuprofile", false, "create CPU profile")
 	flag.StringVar(&o.compressor, "compressor", "zstd", "compression algorithm")
 	flag.Parse()
