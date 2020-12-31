@@ -21,11 +21,7 @@ func (g gzipCompressor) Compress(b []byte) ([]byte, error) {
 	if err := gzipWriter.Close(); err != nil {
 		return nil, err
 	}
-	compressed, err := ioutil.ReadAll(buf)
-	if err != nil {
-		return nil, err
-	}
-	return compressed, nil
+	return buf.Bytes(), nil
 }
 
 func (g gzipCompressor) Decompress(b []byte) ([]byte, error) {
