@@ -8,7 +8,7 @@ import (
 
 type gzipCompressor struct{}
 
-func NewGzip() *gzipCompressor {
+func newGzip() *gzipCompressor {
 	return &gzipCompressor{}
 }
 

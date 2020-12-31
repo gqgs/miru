@@ -10,9 +10,9 @@ type Compressor interface {
 func NewCompressor(name string) (Compressor, error) {
 	switch name {
 	case "zstd":
-		return NewZstdCompressor(), nil
+		return newZstd(), nil
 	case "gzip":
-		return NewGzip(), nil
+		return newGzip(), nil
 	}
 	return nil, errors.New("invalid compressor")
 }

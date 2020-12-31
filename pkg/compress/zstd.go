@@ -2,7 +2,7 @@ package compress
 
 import "github.com/valyala/gozstd"
 
-func NewZstdCompressor() *zstdCompressor {
+func newZstd() *zstdCompressor {
 	return &zstdCompressor{}
 }
 
