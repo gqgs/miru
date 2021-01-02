@@ -13,6 +13,8 @@ func NewCompressor(name string) (Compressor, error) {
 		return newZstd(), nil
 	case "gzip":
 		return newGzip(), nil
+	case "nop":
+		return newNop(), nil
 	}
 	return nil, errors.New("invalid compressor")
 }

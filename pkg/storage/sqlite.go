@@ -17,7 +17,7 @@ type sqliteStorage struct {
 
 // Should be closed after being used
 func NewSqliteStorage(dbName string, compressor compress.Compressor) (*sqliteStorage, error) {
-	db, err := sql.Open("sqlite3", dbName+"?_synchronous=off&_journal_mode=off")
+	db, err := sql.Open("sqlite3", dbName+"?_synchronous=off&_journal_mode=off&cache=shared")
 	if err != nil {
 		return nil, err
 	}
