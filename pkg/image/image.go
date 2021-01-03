@@ -9,8 +9,10 @@ import (
 	_ "image/png"
 	"io"
 	"math"
+	"mime"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -223,4 +225,8 @@ func Load(filename string) (*Image, error) {
 
 func isURL(s string) bool {
 	return strings.HasPrefix(s, "https://") || strings.HasPrefix(s, "http://")
+}
+
+func IsImage(filename string) bool {
+	return strings.HasPrefix(mime.TypeByExtension(filepath.Ext(filename)), "image")
 }

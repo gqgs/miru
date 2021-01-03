@@ -53,7 +53,7 @@ func insert(o options) error {
 		if err != nil {
 			return err
 		}
-		if info.Mode().IsRegular() {
+		if info.Mode().IsRegular() && image.IsImage(info.Name()) {
 			wg.Add(1)
 			pathCh <- path
 		}

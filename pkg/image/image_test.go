@@ -131,3 +131,49 @@ func Benchmark_compare(b *testing.B) {
 		_ = compare(img.Hist, img.Hist)
 	}
 }
+
+func Test_IsImage(t *testing.T) {
+	tests := []struct {
+		name     string
+		filename string
+		want     bool
+	}{
+		{
+			"empty string",
+			"",
+			false,
+		},
+		{
+			"jpeg image",
+			"image.jpg",
+			true,
+		},
+		{
+			"another jpeg image",
+			"image.jpeg",
+			true,
+		},
+		{
+			"png image",
+			"image.png",
+			true,
+		},
+		{
+			"webm image",
+			"image.webp",
+			true,
+		},
+		{
+			"webm video",
+			"image.webm",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsImage(tt.filename); got != tt.want {
+				t.Errorf("isImage() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
