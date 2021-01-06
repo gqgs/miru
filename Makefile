@@ -1,15 +1,16 @@
 
+CGO_CFLAGS="-march=native -Ofast -pipe"
 
 install: search insert plot
 
 search:
-	go install ./cmd/miru-search/
+	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-search/
 
 insert:
-	go install ./cmd/miru-insert/
+	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-insert/
 
 plot:
-	go install ./cmd/miru-plot/
+	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-plot/
 
 docker:
 	docker build -t miru .
