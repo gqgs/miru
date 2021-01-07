@@ -12,6 +12,11 @@ void calc_hist(unsigned char *jpegFile, size_t size, ulong r[], ulong g[], ulong
 	struct jpeg_decompress_struct cinfo;
 
 	cinfo.err = jpeg_std_error(&jerr);
+	cinfo.dct_method = JDCT_FASTEST;
+	cinfo.do_fancy_upsampling = FALSE;
+	cinfo.two_pass_quantize = FALSE;
+	cinfo.dither_mode = JDITHER_ORDERED;
+
 	jpeg_create_decompress(&cinfo);
 	jpeg_mem_src(&cinfo, jpegFile, size);
 	jpeg_read_header(&cinfo, TRUE);
@@ -37,20 +42,33 @@ void calc_hist(unsigned char *jpegFile, size_t size, ulong r[], ulong g[], ulong
 // #cgo LDFLAGS: -ljpeg
 import "C"
 import (
+	"bytes"
 	"io"
-	"io/ioutil"
+	"sync"
 	"unsafe"
 )
+
+var bufferPool = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
+}
 
 func decodeJpeg(reader io.Reader) (*Histogram, error) {
 	// TODO: use source reading the file as needed?
 	// https://github.com/pixiv/go-libjpeg/blob/master/jpeg/sourceManager.go#L133
 	// https://cs.stanford.edu/~acoates/decompressJpegFromMemory.txt
-	bytes, err := ioutil.ReadAll(reader)
-	if err != nil {
+
+	buffer := bufferPool.Get().(*bytes.Buffer)
+	defer bufferPool.Put(buffer)
+	buffer.Reset()
+
+	if _, err := buffer.ReadFrom(reader); err != nil {
 		return nil, err
 	}
+
 	var hist Histogram
+	bytes := buffer.Bytes()
 	C.calc_hist((*C.uchar)(unsafe.Pointer(&bytes[0])), C.size_t(len(bytes)), (*C.ulong)(&hist.Red[0]), (*C.ulong)(&hist.Green[0]), (*C.ulong)(&hist.Blue[0]))
 	return &hist, nil
 }
