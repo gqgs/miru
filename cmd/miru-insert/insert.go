@@ -1,15 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/gqgs/miru/pkg/compress"
 	"github.com/gqgs/miru/pkg/image"
 	"github.com/gqgs/miru/pkg/storage"
 	"github.com/gqgs/miru/pkg/tree"
+	"github.com/schollz/progressbar/v3"
 )
 
 func insert(o options) error {
@@ -25,6 +28,22 @@ func insert(o options) error {
 
 	tree := tree.New(sqliteStorage)
 
+	bar := progressbar.NewOptions64(
+		-1,
+		progressbar.OptionSetWriter(os.Stderr),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Fprint(os.Stderr, "\n")
+		}),
+		progressbar.OptionSetWidth(10),
+		progressbar.OptionThrottle(100*time.Millisecond),
+		progressbar.OptionShowCount(),
+		progressbar.OptionFullWidth(),
+		progressbar.OptionShowIts(),
+		progressbar.OptionSetItsString("imgs"),
+	)
+	// nolint: errcheck
+	defer bar.Finish()
+
 	var wg sync.WaitGroup
 	pathCh := make(chan string)
 	go func() {
@@ -36,6 +55,7 @@ func insert(o options) error {
 				defer func() {
 					<-semaphore
 					wg.Done()
+					_ = bar.Add(1)
 				}()
 				img, err := image.Load(path)
 				if err != nil {
