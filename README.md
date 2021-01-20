@@ -13,7 +13,7 @@ make install
 
 ```
 make docker
-docker run -v "$(pwd)":"$(pwd)" miru miru-insert --help
+docker run -v "$(pwd)":"$(pwd)" miru miru-index --help
 docker run -v "$(pwd)":"$(pwd)" miru miru-search --help
 docker run -v "$(pwd)":"$(pwd)" miru miru-plot --help
 ```
@@ -23,7 +23,7 @@ docker run -v "$(pwd)":"$(pwd)" miru miru-plot --help
 #### Index images
 
 ```
-miru-insert --folder [folder]
+miru-index --folder [folder]
 ```
 
 #### Search for an image

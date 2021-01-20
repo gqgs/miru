@@ -15,7 +15,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-func insert(o options) error {
+func index(o options) error {
 	compressor, err := compress.NewCompressor(o.compressor)
 	if err != nil {
 		return err

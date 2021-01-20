@@ -1,13 +1,13 @@
 
 CGO_CFLAGS="-march=native -Ofast -pipe"
 
-install: search insert plot
+install: search index plot
 
 search:
 	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-search/
 
-insert:
-	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-insert/
+index:
+	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-index/
 
 plot:
 	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-plot/

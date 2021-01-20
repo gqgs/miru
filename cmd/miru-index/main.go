@@ -34,7 +34,7 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	if err := insert(o); err != nil {
+	if err := index(o); err != nil {
 		log.Fatal(err)
 	}
 }
