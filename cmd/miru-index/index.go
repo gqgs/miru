@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gqgs/miru/pkg/cld"
 	"github.com/gqgs/miru/pkg/compress"
 	"github.com/gqgs/miru/pkg/image"
 	"github.com/gqgs/miru/pkg/storage"
@@ -57,7 +58,7 @@ func index(o options) error {
 					wg.Done()
 					_ = bar.Add(1)
 				}()
-				img, err := image.Load(path)
+				img, err := cld.Load(path)
 				if err != nil {
 					log.Printf("%s: %s", err, path)
 					return

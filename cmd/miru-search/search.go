@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os/exec"
 
+	"github.com/gqgs/miru/pkg/cld"
 	"github.com/gqgs/miru/pkg/compress"
-	"github.com/gqgs/miru/pkg/image"
 	"github.com/gqgs/miru/pkg/storage"
 	"github.com/gqgs/miru/pkg/tree"
 )
@@ -21,7 +21,7 @@ func search(o options) error {
 	}
 	defer sqliteStorage.Close()
 
-	img, err := image.Load(o.file)
+	img, err := cld.Load(o.file)
 	if err != nil {
 		return err
 	}
