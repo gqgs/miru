@@ -1,23 +1,25 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 )
 
+//go:generate go run github.com/gqgs/argsgen
+
 type options struct {
-	db         string
-	out        string
-	compressor string
+	db         string `arg:"database name"`
+	out        string `arg:"output file"`
+	compressor string `arg:"compression algorithm"`
 }
 
 func main() {
-	var o options
-	flag.StringVar(&o.db, "db", os.Getenv("MIRU_DB"), "database name")
-	flag.StringVar(&o.out, "out", "digraph.dot", "output file")
-	flag.StringVar(&o.compressor, "compressor", "zstd", "compression algorithm")
-	flag.Parse()
+	o := options{
+		db:         os.Getenv("MIRU_DB"),
+		out:        "digraph.dot",
+		compressor: "zstd",
+	}
+	o.MustParse()
 
 	if err := plot(o); err != nil {
 		log.Fatal(err)

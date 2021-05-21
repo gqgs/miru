@@ -1,32 +1,31 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 	"runtime/pprof"
 )
 
+//go:generate go run github.com/gqgs/argsgen
+
 type options struct {
-	db         string
-	file       string
-	accuracy   uint
-	limit      uint
-	open       bool
-	profile    bool
-	compressor string
+	db         string `arg:"database name"`
+	file, url  string `arg:"target file|url,+"`
+	accuracy   uint   `arg:"higher = more accurate = slower"`
+	limit      uint   `arg:"number of closest matches to display"`
+	open       bool   `arg:"open closest match"`
+	profile    bool   `arg:"create CPU profile"`
+	compressor string `arg:"compression algorithm"`
 }
 
 func main() {
-	var o options
-	flag.StringVar(&o.db, "db", os.Getenv("MIRU_DB"), "database name")
-	flag.StringVar(&o.file, "file", "", "target file|url")
-	flag.UintVar(&o.accuracy, "accuracy", 2, "higher = more accurate = slower")
-	flag.UintVar(&o.limit, "limit", 10, "number of closest matches to display")
-	flag.BoolVar(&o.open, "open", false, "open closest match")
-	flag.BoolVar(&o.profile, "cpuprofile", false, "create CPU profile")
-	flag.StringVar(&o.compressor, "compressor", "zstd", "compression algorithm")
-	flag.Parse()
+	o := options{
+		db:         os.Getenv("MIRU_DB"),
+		accuracy:   2,
+		limit:      10,
+		compressor: "zstd",
+	}
+	o.MustParse()
 
 	if o.profile {
 		f, err := os.Create("cpuprofile")

@@ -1,29 +1,30 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 	"runtime"
 	"runtime/pprof"
 )
 
+//go:generate go run github.com/gqgs/argsgen
+
 type options struct {
-	db         string
-	folder     string
-	parallel   uint
-	profile    bool
-	compressor string
+	db         string `arg:"database name"`
+	folder     string `arg:"target folder,+"`
+	parallel   uint   `arg:"number of files to process in parallel"`
+	profile    bool   `arg:"create CPU profile"`
+	compressor string `arg:"compression algorithm"`
 }
 
 func main() {
-	var o options
-	flag.StringVar(&o.db, "db", os.Getenv("MIRU_DB"), "database name")
-	flag.StringVar(&o.folder, "folder", ".", "target folder")
-	flag.UintVar(&o.parallel, "parallel", uint(runtime.NumCPU()), "number of files to process in parallel")
-	flag.BoolVar(&o.profile, "cpuprofile", false, "create CPU profile")
-	flag.StringVar(&o.compressor, "compressor", "zstd", "compression algorithm")
-	flag.Parse()
+	o := options{
+		db:         os.Getenv("MIRU_DB"),
+		folder:     ".",
+		parallel:   uint(runtime.NumCPU()),
+		compressor: "zstd",
+	}
+	o.MustParse()
 
 	if o.profile {
 		f, err := os.Create("cpuprofile")

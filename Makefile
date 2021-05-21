@@ -1,7 +1,10 @@
 
 CGO_CFLAGS="-march=native -Ofast -pipe"
 
-install: search index plot
+install: generate search index plot
+
+generate:
+	go generate ./...
 
 search:
 	CGO_CFLAGS=${CGO_CFLAGS} go install ./cmd/miru-search/
