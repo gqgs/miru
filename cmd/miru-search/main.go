@@ -10,7 +10,7 @@ import (
 
 type options struct {
 	db         string `arg:"database name"`
-	file, url  string `arg:"target file|url,+"`
+	file, url  string `arg:"target file|url,+,!"`
 	accuracy   uint   `arg:"higher = more accurate = slower"`
 	limit      uint   `arg:"number of closest matches to display"`
 	open       bool   `arg:"open closest match"`

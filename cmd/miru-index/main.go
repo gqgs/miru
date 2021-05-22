@@ -11,7 +11,7 @@ import (
 
 type options struct {
 	db         string `arg:"database name"`
-	folder     string `arg:"target folder,+"`
+	folder     string `arg:"target folder,+,!"`
 	parallel   uint   `arg:"number of files to process in parallel"`
 	profile    bool   `arg:"create CPU profile"`
 	compressor string `arg:"compression algorithm"`
@@ -20,7 +20,6 @@ type options struct {
 func main() {
 	o := options{
 		db:         os.Getenv("MIRU_DB"),
-		folder:     ".",
 		parallel:   uint(runtime.NumCPU()),
 		compressor: "zstd",
 	}

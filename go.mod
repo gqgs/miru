@@ -3,6 +3,7 @@ module github.com/gqgs/miru
 go 1.15
 
 require (
+	github.com/gqgs/argsgen v1.0.1
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/pierrre/imageutil v1.0.0
 	github.com/schollz/progressbar/v3 v3.7.3

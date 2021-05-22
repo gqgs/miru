@@ -3,18 +3,25 @@
 package main
 
 import (
+    "errors"
     "flag"
+    "fmt"
     "os"
 )
 
-func (o *options) Parse() error {
+func (o *options) flagSet() *flag.FlagSet {
     flagSet := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
     flagSet.StringVar(&o.db, "db", o.db, "database name")
     flagSet.StringVar(&o.folder, "folder", o.folder, "target folder")
     flagSet.UintVar(&o.parallel, "parallel", o.parallel, "number of files to process in parallel")
     flagSet.BoolVar(&o.profile, "profile", o.profile, "create CPU profile")
     flagSet.StringVar(&o.compressor, "compressor", o.compressor, "compression algorithm")
+    return flagSet
+}
 
+// Parse parses the arguments in os.Args
+func (o *options) Parse() error {
+    flagSet := o.flagSet()
     var positional []string
     args := os.Args[1:]
     for len(args) > 0 {
@@ -33,16 +40,26 @@ func (o *options) Parse() error {
 
     
     if len(positional) == 0 {
+        if o.folder == "" {
+            return errors.New("argument 'folder' is required")
+        }
         return nil
     }
-    
-    o.folder = positional[0]
-    
+    if len(positional) > 0 {
+        o.folder = positional[0]
+    }
+    if o.folder == "" {
+        return errors.New("argument 'folder' is required")
+    }
     return nil
 }
 
+// MustParse parses the arguments in os.Args or exists on error
 func (o *options) MustParse() {
     if err := o.Parse(); err != nil {
-        panic(err)
+        o.flagSet().PrintDefaults()
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
     }
 }

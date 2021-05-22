@@ -3,11 +3,13 @@
 package main
 
 import (
+    "errors"
     "flag"
+    "fmt"
     "os"
 )
 
-func (o *options) Parse() error {
+func (o *options) flagSet() *flag.FlagSet {
     flagSet := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
     flagSet.StringVar(&o.db, "db", o.db, "database name")
     flagSet.StringVar(&o.file, "file", o.file, "target file|url")
@@ -17,7 +19,12 @@ func (o *options) Parse() error {
     flagSet.BoolVar(&o.open, "open", o.open, "open closest match")
     flagSet.BoolVar(&o.profile, "profile", o.profile, "create CPU profile")
     flagSet.StringVar(&o.compressor, "compressor", o.compressor, "compression algorithm")
+    return flagSet
+}
 
+// Parse parses the arguments in os.Args
+func (o *options) Parse() error {
+    flagSet := o.flagSet()
     var positional []string
     args := os.Args[1:]
     for len(args) > 0 {
@@ -34,19 +41,38 @@ func (o *options) Parse() error {
         break
     }
 
+    o.url = o.file
     
     if len(positional) == 0 {
+        if o.file == "" {
+            return errors.New("argument 'file' is required")
+        }
+        if o.url == "" {
+            return errors.New("argument 'url' is required")
+        }
         return nil
     }
-    
-    o.file = positional[0]
-    o.url = positional[0]
-    
+    if len(positional) > 0 {
+        o.file = positional[0]
+    }
+    if len(positional) > 0 {
+        o.url = positional[0]
+    }
+    if o.file == "" {
+        return errors.New("argument 'file' is required")
+    }
+    if o.url == "" {
+        return errors.New("argument 'url' is required")
+    }
     return nil
 }
 
+// MustParse parses the arguments in os.Args or exists on error
 func (o *options) MustParse() {
     if err := o.Parse(); err != nil {
-        panic(err)
+        o.flagSet().PrintDefaults()
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
     }
 }
