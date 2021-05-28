@@ -3,7 +3,9 @@ package storage
 import (
 	"database/sql"
 	"encoding"
+	"sync"
 
+	"github.com/golang/groupcache/lru"
 	"github.com/gqgs/miru/pkg/compress"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -13,6 +15,8 @@ type sqliteStorage struct {
 	db         *sql.DB
 	stmt       *sql.Stmt
 	compressor compress.Compressor
+	mu         sync.Mutex
+	lru        *lru.Cache
 }
 
 // Should be closed after being used
@@ -46,6 +50,7 @@ func NewSqliteStorage(dbName string, compressor compress.Compressor) (*sqliteSto
 		db:         db,
 		stmt:       stmt,
 		compressor: compressor,
+		lru:        lru.New(256),
 	}, nil
 }
 
@@ -55,6 +60,14 @@ func (s *sqliteStorage) Close() error {
 }
 
 func (s *sqliteStorage) Get(nodeID int64) (*Node, error) {
+	s.mu.Lock()
+	value, ok := s.lru.Get(nodeID)
+	s.mu.Unlock()
+
+	if ok {
+		return value.(*Node), nil
+	}
+
 	node := new(Node)
 	err := s.stmt.QueryRow(nodeID).
 		Scan(&node.LeftObject, &node.RightObject, &node.LeftChild, &node.RightChild)
@@ -78,10 +91,18 @@ func (s *sqliteStorage) Get(nodeID int64) (*Node, error) {
 		}
 		*node.RightObject = append(decompressed[0:0], decompressed...)
 	}
+
+	s.mu.Lock()
+	s.lru.Add(nodeID, node)
+	s.mu.Unlock()
 	return node, nil
 }
 
 func (s *sqliteStorage) SetObject(nodeID int64, position Position, marshaler encoding.BinaryMarshaler) (err error) {
+	s.mu.Lock()
+	s.lru.Remove(nodeID)
+	s.mu.Unlock()
+
 	b, err := marshaler.MarshalBinary()
 	if err != nil {
 		return err
@@ -101,6 +122,10 @@ func (s *sqliteStorage) SetObject(nodeID int64, position Position, marshaler enc
 }
 
 func (s *sqliteStorage) SetChild(nodeID int64, position Position, child int64) (err error) {
+	s.mu.Lock()
+	s.lru.Remove(nodeID)
+	s.mu.Unlock()
+
 	switch position {
 	case Left:
 		_, err = s.db.Exec("UPDATE tree SET left = ? WHERE id = ?", child, nodeID)
