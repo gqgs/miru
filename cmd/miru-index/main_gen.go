@@ -16,6 +16,7 @@ func (o *options) flagSet() *flag.FlagSet {
     flagSet.UintVar(&o.parallel, "parallel", o.parallel, "number of files to process in parallel")
     flagSet.BoolVar(&o.profile, "profile", o.profile, "create CPU profile")
     flagSet.StringVar(&o.compressor, "compressor", o.compressor, "compression algorithm")
+    flagSet.IntVar(&o.cachesize, "cachesize", o.cachesize, "max number of elements in cache")
     return flagSet
 }
 

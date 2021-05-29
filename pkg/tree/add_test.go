@@ -6,6 +6,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/gqgs/miru/pkg/cache"
 	"github.com/gqgs/miru/pkg/compress"
 	"github.com/gqgs/miru/pkg/image"
 	"github.com/gqgs/miru/pkg/storage"
@@ -16,7 +17,7 @@ func Benchmark_Add(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	storage, err := storage.NewSqliteStorage("file::memory:", compressor)
+	storage, err := storage.NewSqliteStorage("file::memory:", compressor, cache.New(0))
 	if err != nil {
 		b.Fatal(err)
 	}

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gqgs/miru/pkg/cache"
 	"github.com/gqgs/miru/pkg/compress"
 	"github.com/gqgs/miru/pkg/image"
 	"github.com/gqgs/miru/pkg/storage"
@@ -16,7 +17,7 @@ func Test_Tree(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	storage, err := storage.NewSqliteStorage("file::memory:", compressor)
+	storage, err := storage.NewSqliteStorage("file::memory:", compressor, cache.New(0))
 	if err != nil {
 		t.Fatal(err)
 	}

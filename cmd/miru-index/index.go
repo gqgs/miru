@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gqgs/miru/pkg/cache"
 	"github.com/gqgs/miru/pkg/compress"
 	"github.com/gqgs/miru/pkg/image"
 	"github.com/gqgs/miru/pkg/storage"
@@ -20,7 +21,7 @@ func index(o options) error {
 	if err != nil {
 		return err
 	}
-	sqliteStorage, err := storage.NewSqliteStorage(o.db, compressor)
+	sqliteStorage, err := storage.NewSqliteStorage(o.db, compressor, cache.New(o.cachesize))
 	if err != nil {
 		return err
 	}

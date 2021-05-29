@@ -6,10 +6,10 @@ func newNop() *nopCompressor {
 
 type nopCompressor struct{}
 
-func (c nopCompressor) Compress(b []byte) ([]byte, error) {
+func (nopCompressor) Compress(b []byte) ([]byte, error) {
 	return b, nil
 }
 
-func (c nopCompressor) Decompress(b []byte) ([]byte, error) {
+func (nopCompressor) Decompress(b []byte) ([]byte, error) {
 	return b, nil
 }

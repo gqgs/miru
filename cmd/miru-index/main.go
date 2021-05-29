@@ -15,6 +15,7 @@ type options struct {
 	parallel   uint   `arg:"number of files to process in parallel"`
 	profile    bool   `arg:"create CPU profile"`
 	compressor string `arg:"compression algorithm"`
+	cachesize  int    `arg:"max number of elements in cache"`
 }
 
 func main() {
@@ -22,6 +23,7 @@ func main() {
 		db:         os.Getenv("MIRU_DB"),
 		parallel:   uint(runtime.NumCPU()),
 		compressor: "zstd",
+		cachesize:  256,
 	}
 	o.MustParse()
 
