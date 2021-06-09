@@ -77,14 +77,14 @@ func (s *sqliteStorage) Get(nodeID int64) (*Node, error) {
 		if err != nil {
 			return nil, err
 		}
-		*node.LeftObject = append(decompressed[0:0], decompressed...)
+		*node.LeftObject = decompressed
 	}
 	if node.RightObject != nil {
 		decompressed, err := s.compressor.Decompress(*node.RightObject)
 		if err != nil {
 			return nil, err
 		}
-		*node.RightObject = append(decompressed[0:0], decompressed...)
+		*node.RightObject = decompressed
 	}
 
 	s.cache.Add(nodeID, node)

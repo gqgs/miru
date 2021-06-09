@@ -93,8 +93,7 @@ func (img *Image) MarshalBinary() ([]byte, error) {
 			return nil, err
 		}
 	}
-	binBuffer = append(filenameBytes[0:0], filenameBytes...)
-	if _, err := buffer.Write(binBuffer); err != nil {
+	if _, err := buffer.Write(filenameBytes); err != nil {
 		return nil, err
 	}
 
@@ -197,6 +196,7 @@ func Load(filename string) (*Image, error) {
 		if err != nil {
 			return nil, err
 		}
+		//nolint:errcheck
 		defer reader.(io.Closer).Close()
 	}
 

@@ -37,6 +37,6 @@ func main() {
 	}
 
 	if err := index(o); err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 }
