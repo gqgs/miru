@@ -12,44 +12,41 @@ import (
 	"github.com/gqgs/miru/pkg/storage"
 )
 
-func Test_Tree(t *testing.T) {
+func Benchmark_Search(b *testing.B) {
 	compressor, err := compress.NewCompressor("nop")
 	if err != nil {
-		t.Fatal(err)
+		b.Fatal(err)
 	}
 	storage, err := storage.NewSqliteStorage("file::memory:", compressor, cache.New(0))
 	if err != nil {
-		t.Fatal(err)
+		b.Fatal(err)
 	}
 	defer storage.Close()
 
 	files, err := ioutil.ReadDir("./testdata/thumbs")
 	if err != nil {
-		t.Fatal(err)
+		b.Fatal(err)
 	}
 
 	tree := New(storage)
 	for _, file := range files {
 		img, err := image.Load(filepath.Join("./testdata/thumbs", file.Name()))
 		if err != nil {
-			t.Fatal(err)
+			b.Fatal(err)
 		}
 		if err := tree.Add(img); err != nil {
-			t.Fatal(err)
+			b.Fatal(err)
 		}
 	}
 
 	i := rand.Intn(len(files))
 	query, err := image.Load(filepath.Join("./testdata/thumbs", files[i].Name()))
 	if err != nil {
-		t.Fatal(err)
+		b.Fatal(err)
 	}
-	results, err := tree.Search(query, 2)
-	if err != nil {
-		t.Fatal(err)
-	}
-	result := results.Top(1)[0]
-	if query.Filename != result.Filename {
-		t.Errorf("unexpected result: want: %s: got: %s", query.Filename, result.Filename)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = tree.Search(query, 2)
 	}
 }

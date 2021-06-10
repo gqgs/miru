@@ -78,14 +78,6 @@ func (t *Tree) search(nodeID int64, comparer Comparer, accuracy uint) (results, 
 		return res, nil
 	}
 
-	var res = results{result{
-		Filename: filename0,
-		Score:    cmp0,
-	}, result{
-		Filename: filename1,
-		Score:    cmp1,
-	}}
-
 	var res0, res1 results
 	var err0, err1 error
 	var wg sync.WaitGroup
@@ -111,8 +103,17 @@ func (t *Tree) search(nodeID int64, comparer Comparer, accuracy uint) (results, 
 	if err1 != nil {
 		return nil, err1
 	}
-	res = append(res, res0...)
-	res = append(res, res1...)
+
+	res := make(results, 2+len(res0)+len(res1))
+	i := copy(res, results{result{
+		Filename: filename0,
+		Score:    cmp0,
+	}, result{
+		Filename: filename1,
+		Score:    cmp1,
+	}})
+	i += copy(res[i:], res0)
+	copy(res[i:], res1)
 
 	return res, nil
 }
