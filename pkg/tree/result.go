@@ -2,7 +2,10 @@ package tree
 
 import (
 	"container/heap"
+	"encoding/json"
+	"fmt"
 	"sort"
+	"strings"
 )
 
 var (
@@ -67,4 +70,33 @@ func (r results) Top(limit uint) results {
 	top.sortBy = increasingSorter
 	sort.Sort(top)
 	return top.r
+}
+
+func NewFormatter(results results) *formatter {
+	return &formatter{
+		results: results,
+	}
+}
+
+type formatter struct {
+	results results
+	json    bool
+}
+
+func (f *formatter) JSON(value bool) *formatter {
+	f.json = value
+	return f
+}
+
+func (f formatter) String() string {
+	if f.json {
+		v, _ := json.Marshal(f.results)
+		return string(v)
+	}
+
+	var builder strings.Builder
+	for _, result := range f.results {
+		builder.WriteString(fmt.Sprintln(result))
+	}
+	return builder.String()
 }

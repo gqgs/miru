@@ -19,6 +19,7 @@ func (o *options) flagSet() *flag.FlagSet {
     flagSet.BoolVar(&o.open, "open", o.open, "open closest match")
     flagSet.BoolVar(&o.profile, "profile", o.profile, "create CPU profile")
     flagSet.StringVar(&o.compressor, "compressor", o.compressor, "compression algorithm")
+    flagSet.BoolVar(&o.json, "json", o.json, "output result as JSON")
     return flagSet
 }
 

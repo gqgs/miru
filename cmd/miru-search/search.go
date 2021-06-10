@@ -33,9 +33,7 @@ func search(o options) error {
 	}
 
 	top := res.Top(o.limit)
-	for _, t := range top {
-		fmt.Println(t)
-	}
+	fmt.Println(tree.NewFormatter(top).JSON(o.json))
 
 	if o.open && len(top) > 0 {
 		return exec.Command("xdg-open", top[0].Filename).Start()

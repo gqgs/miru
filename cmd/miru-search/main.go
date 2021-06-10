@@ -16,6 +16,7 @@ type options struct {
 	open       bool   `arg:"open closest match"`
 	profile    bool   `arg:"create CPU profile"`
 	compressor string `arg:"compression algorithm"`
+	json       bool   `arg:"output result as JSON"`
 }
 
 func main() {
