@@ -14,11 +14,11 @@ func (t *Tree) Add(comparer Comparer) error {
 
 func (t *Tree) add(nodeID int64, comparer Comparer) error {
 	node, err := t.storage.Get(nodeID)
-	if err == storage.ErrIsEmpty {
-		_, err = t.storage.NewNode(comparer)
-		return err
-	}
 	if err != nil {
+		if err == storage.ErrIsEmpty {
+			_, err = t.storage.NewNode(comparer)
+			return err
+		}
 		return err
 	}
 
