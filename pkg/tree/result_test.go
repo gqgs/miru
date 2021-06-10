@@ -36,6 +36,10 @@ func Test_results_Top(t *testing.T) {
 			Score: 10,
 		},
 	}
+	rand.Shuffle(len(input), func(i, j int) {
+		input[i], input[j] = input[j], input[i]
+	})
+
 	tests := []struct {
 		name  string
 		r     results
