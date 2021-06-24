@@ -16,7 +16,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gqgs/miru/pkg/image/avx"
 	"github.com/pierrre/imageutil"
+	"golang.org/x/sys/cpu"
 )
 
 type Histogram struct {
@@ -25,9 +27,9 @@ type Histogram struct {
 	Blue  [256]uint64
 
 	once            sync.Once
-	normalizedRed   [256]float64
-	normalizedGreen [256]float64
-	normalizedBlue  [256]float64
+	normalizedRed   [256]float32
+	normalizedGreen [256]float32
+	normalizedBlue  [256]float32
 }
 
 func (h *Histogram) normalize() {
@@ -40,9 +42,9 @@ func (h *Histogram) normalize() {
 		}
 		norm := math.Sqrt(float64(sum))
 		for i := 0; i < 256; i++ {
-			h.normalizedRed[i] = float64(h.Red[i]) / norm
-			h.normalizedGreen[i] = float64(h.Green[i]) / norm
-			h.normalizedBlue[i] = float64(h.Blue[i]) / norm
+			h.normalizedRed[i] = float32(h.Red[i]) / float32(norm)
+			h.normalizedGreen[i] = float32(h.Green[i]) / float32(norm)
+			h.normalizedBlue[i] = float32(h.Blue[i]) / float32(norm)
 		}
 	})
 }
@@ -136,9 +138,22 @@ func deserialize(b []byte) (*Image, error) {
 
 // Alternative Chi-Square
 func compare(h1, h2 *Histogram) float64 {
-	var result float64
 	h1.normalize()
 	h2.normalize()
+	result := compareHist(h1, h2)
+	return math.Abs(float64(2 * result))
+}
+
+func compareHist(h1, h2 *Histogram) float32 {
+	if cpu.X86.HasAVX2 {
+		return avx.CompareHist(
+			h1.normalizedRed, h2.normalizedRed,
+			h1.normalizedGreen, h2.normalizedGreen,
+			h1.normalizedBlue, h2.normalizedBlue,
+		)
+	}
+
+	var result float32
 	for i := 0; i < 256; i++ {
 		if num := (h1.normalizedRed[i] + h2.normalizedRed[i]); num > 0 {
 			result += (h1.normalizedRed[i] - h2.normalizedRed[i]) * (h1.normalizedRed[i] - h2.normalizedRed[i]) / num
@@ -150,7 +165,7 @@ func compare(h1, h2 *Histogram) float64 {
 			result += (h1.normalizedBlue[i] - h2.normalizedBlue[i]) * (h1.normalizedBlue[i] - h2.normalizedBlue[i]) / num
 		}
 	}
-	return math.Abs(2 * result)
+	return result
 }
 
 func readFile(filename string) (io.ReadCloser, error) {

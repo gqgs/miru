@@ -80,7 +80,7 @@ func Test_compare(t *testing.T) {
 			"given distinct images",
 			"./testdata/jpeg_image.jpg",
 			"./testdata/png_image.png",
-			10.887658691747117,
+			10.887659072875977,
 		},
 	}
 	for _, tt := range tests {
