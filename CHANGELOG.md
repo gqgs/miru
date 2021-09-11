@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/gqgs/miru/compare/v1.1.0...v1.2.0) (2021-09-11)
+
+
+### Features
+
+* **image:** AVX/AVX2 instructions for hist cmp ([65fe0b8](https://github.com/gqgs/miru/commit/65fe0b8aeba0f26b05525d155947aab26e769312))
+
+
+### Bug Fixes
+
+* **tree:** remove storage error check from hot path ([b96a402](https://github.com/gqgs/miru/commit/b96a402bbab7ab3ce6e7f23f1fe4b6b054568466))
+
 ## [1.1.0](https://github.com/gqgs/miru/compare/v1.0.0...v1.1.0) (2021-06-10)
 
 
