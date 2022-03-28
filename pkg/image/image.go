@@ -17,7 +17,6 @@ import (
 	"sync"
 
 	"github.com/gqgs/miru/pkg/image/avx"
-	"github.com/pierrre/imageutil"
 	"golang.org/x/sys/cpu"
 )
 
@@ -222,10 +221,9 @@ func Load(filename string) (*Image, error) {
 
 	var hist Histogram
 	var bounds = img.Bounds()
-	atFunc := imageutil.NewAtFunc(img)
 	for x := bounds.Min.X; x < bounds.Max.X; x++ {
 		for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-			red, green, blue, _ := atFunc(x, y)
+			red, green, blue, _ := img.At(x, y).RGBA()
 			hist.Red[red>>8]++
 			hist.Green[green>>8]++
 			hist.Blue[blue>>8]++
