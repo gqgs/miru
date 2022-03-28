@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
 	github.com/gqgs/argsgen v1.0.1
+	github.com/gqgs/pool v0.0.0-20220330075622-4bbb8f08320e
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/valyala/gozstd v1.16.0

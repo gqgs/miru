@@ -44,22 +44,19 @@ import "C"
 import (
 	"bytes"
 	"io"
-	"sync"
 	"unsafe"
+
+	"github.com/gqgs/pool"
 )
 
-var bufferPool = sync.Pool{
-	New: func() interface{} {
-		return new(bytes.Buffer)
-	},
-}
+var bufferPool = pool.New[bytes.Buffer]()
 
 func decodeJpeg(reader io.Reader) (*Histogram, error) {
 	// TODO: use source reading the file as needed?
 	// https://github.com/pixiv/go-libjpeg/blob/master/jpeg/sourceManager.go#L133
 	// https://cs.stanford.edu/~acoates/decompressJpegFromMemory.txt
 
-	buffer := bufferPool.Get().(*bytes.Buffer)
+	buffer := bufferPool.Get()
 	defer bufferPool.Put(buffer)
 	buffer.Reset()
 
@@ -67,8 +64,8 @@ func decodeJpeg(reader io.Reader) (*Histogram, error) {
 		return nil, err
 	}
 
-	var hist Histogram
+	hist := new(Histogram)
 	bytes := buffer.Bytes()
 	C.calc_hist((*C.uchar)(unsafe.Pointer(&bytes[0])), C.size_t(len(bytes)), (*C.ulong)(&hist.Red[0]), (*C.ulong)(&hist.Green[0]), (*C.ulong)(&hist.Blue[0]))
-	return &hist, nil
+	return hist, nil
 }

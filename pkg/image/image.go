@@ -17,6 +17,7 @@ import (
 	"sync"
 
 	"github.com/gqgs/miru/pkg/image/avx"
+	"github.com/gqgs/pool"
 	"golang.org/x/sys/cpu"
 )
 
@@ -179,6 +180,8 @@ func readFile(filename string) (io.ReadCloser, error) {
 	return os.Open(filename)
 }
 
+var bufioReaderPool = pool.New[bufio.Reader]()
+
 func Load(filename string) (*Image, error) {
 	file, err := readFile(filename)
 	if err != nil {
@@ -187,7 +190,10 @@ func Load(filename string) (*Image, error) {
 	defer file.Close()
 
 	var reader io.Reader
-	reader = bufio.NewReader(file)
+	bufioReader := bufioReaderPool.Get()
+	defer bufioReaderPool.Put(bufioReader)
+	bufioReader.Reset(file)
+	reader = bufioReader
 	magicNumber, err := reader.(*bufio.Reader).Peek(2)
 	if err != nil {
 		return nil, err
