@@ -9,7 +9,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/valyala/gozstd v1.16.0
-	golang.org/x/sys v0.0.0-20220327210214-530d0810a4d0
+	golang.org/x/sys v0.1.0
 )
 
 require (
