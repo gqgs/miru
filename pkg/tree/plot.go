@@ -27,10 +27,10 @@ func (t *Tree) plot(parent string, nodeID int64) error {
 		return err
 	}
 	var objects uint
-	if node.LeftObject != nil {
+	if len(node.LeftObject) > 0 {
 		objects++
 	}
-	if node.RightObject != nil {
+	if len(node.RightObject) > 0 {
 		objects++
 	}
 
@@ -44,13 +44,13 @@ func (t *Tree) plot(parent string, nodeID int64) error {
 		fmt.Fprintf(t.writer, "%s -> %s;\n", parent, name)
 	}
 
-	if node.LeftChild != nil {
-		if err = t.plot(name, *node.LeftChild); err != nil {
+	if node.LeftChild.Valid {
+		if err = t.plot(name, node.LeftChild.Int64); err != nil {
 			return err
 		}
 	}
-	if node.RightChild != nil {
-		if err = t.plot(name, *node.RightChild); err != nil {
+	if node.RightChild.Valid {
+		if err = t.plot(name, node.RightChild.Int64); err != nil {
 			return err
 		}
 	}

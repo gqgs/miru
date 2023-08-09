@@ -21,13 +21,13 @@ func index(o options) error {
 	if err != nil {
 		return err
 	}
-	sqliteStorage, err := storage.NewSqliteStorage(o.db, compressor, cache.New(o.cachesize))
+	storage, err := storage.NewStorage(o.storage, o.db, compressor, cache.New(o.cachesize))
 	if err != nil {
 		return err
 	}
-	defer sqliteStorage.Close()
+	defer storage.Close()
 
-	tree := tree.New(sqliteStorage)
+	tree := tree.New(storage)
 
 	bar := progressbar.NewOptions64(
 		-1,

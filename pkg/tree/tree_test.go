@@ -17,7 +17,7 @@ func Test_Tree(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	storage, err := storage.NewSqliteStorage("file::memory:", compressor, cache.New(0))
+	storage, err := storage.NewStorage("sqlite", "file::memory:", compressor, cache.New(0))
 	if err != nil {
 		t.Fatal(err)
 	}

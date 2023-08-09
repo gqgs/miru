@@ -11,7 +11,8 @@ import (
 
 func (o *options) flagSet() *flag.FlagSet {
     flagSet := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-    flagSet.StringVar(&o.db, "db", o.db, "database name")
+    flagSet.StringVar(&o.storage, "storage", o.storage, "storage")
+    flagSet.StringVar(&o.db, "db", o.db, "database name (sqlite)")
     flagSet.StringVar(&o.folder, "folder", o.folder, "target folder")
     flagSet.UintVar(&o.parallel, "parallel", o.parallel, "number of files to process in parallel")
     flagSet.BoolVar(&o.profile, "profile", o.profile, "create CPU profile")

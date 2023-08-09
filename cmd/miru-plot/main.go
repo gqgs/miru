@@ -8,13 +8,15 @@ import (
 //go:generate go run github.com/gqgs/argsgen
 
 type options struct {
-	db         string `arg:"database name"`
+	storage    string `arg:"storage"`
+	db         string `arg:"database name (sqlite)"`
 	out        string `arg:"output file"`
 	compressor string `arg:"compression algorithm"`
 }
 
 func main() {
 	o := options{
+		storage:    "sqlite",
 		db:         os.Getenv("MIRU_DB"),
 		out:        "digraph.dot",
 		compressor: "zstd",

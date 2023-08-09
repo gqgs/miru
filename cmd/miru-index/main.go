@@ -10,7 +10,8 @@ import (
 //go:generate go run github.com/gqgs/argsgen
 
 type options struct {
-	db         string `arg:"database name"`
+	storage    string `arg:"storage"`
+	db         string `arg:"database name (sqlite)"`
 	folder     string `arg:"target folder,+,!"`
 	parallel   uint   `arg:"number of files to process in parallel"`
 	profile    bool   `arg:"create CPU profile"`
@@ -20,6 +21,7 @@ type options struct {
 
 func main() {
 	o := options{
+		storage:    "sqlite",
 		db:         os.Getenv("MIRU_DB"),
 		parallel:   uint(runtime.NumCPU()),
 		compressor: "zstd",

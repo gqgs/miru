@@ -16,18 +16,18 @@ func search(o options) error {
 	if err != nil {
 		return err
 	}
-	sqliteStorage, err := storage.NewSqliteStorage(o.db, compressor, cache.New(0))
+	storage, err := storage.NewStorage(o.storage, o.db, compressor, cache.New(0))
 	if err != nil {
 		return err
 	}
-	defer sqliteStorage.Close()
+	defer storage.Close()
 
 	img, err := image.Load(o.file)
 	if err != nil {
 		return err
 	}
 
-	res, err := tree.New(sqliteStorage).Search(img, o.accuracy)
+	res, err := tree.New(storage).Search(img, o.accuracy)
 	if err != nil {
 		return err
 	}
