@@ -16,11 +16,11 @@ func (t *Tree) search(nodeID int64, comparer Comparer, accuracy uint) (results, 
 	if err != nil {
 		return nil, err
 	}
-	if node.LeftChild == nil && node.RightChild == nil {
+	if !node.LeftChild.Valid && !node.RightChild.Valid {
 		var res results
-		for _, data := range []*[]byte{node.LeftObject, node.RightObject} {
+		for _, data := range [][]byte{node.LeftObject, node.RightObject} {
 			if data != nil {
-				cmp, filename, err := comparer.Compare(*data)
+				cmp, filename, err := comparer.Compare(data)
 				if err != nil {
 					return nil, err
 				}
@@ -33,24 +33,24 @@ func (t *Tree) search(nodeID int64, comparer Comparer, accuracy uint) (results, 
 		return res, nil
 	}
 	// invariant: node has 2 elements here
-	cmp0, filename0, err := comparer.Compare(*node.LeftObject)
+	cmp0, filename0, err := comparer.Compare(node.LeftObject)
 	if err != nil {
 		return nil, err
 	}
-	cmp1, filename1, err := comparer.Compare(*node.RightObject)
+	cmp1, filename1, err := comparer.Compare(node.RightObject)
 	if err != nil {
 		return nil, err
 	}
 	imagesAreDissimilar := math.Abs(cmp0-cmp1) >= float64(accuracy)
 	if imagesAreDissimilar {
 		if cmp0 < cmp1 {
-			if node.LeftChild == nil {
+			if !node.LeftChild.Valid {
 				return results{result{
 					Filename: filename0,
 					Score:    cmp0,
 				}}, nil
 			}
-			res, err := t.search(*node.LeftChild, comparer, accuracy)
+			res, err := t.search(node.LeftChild.Int64, comparer, accuracy)
 			if err != nil {
 				return nil, err
 			}
@@ -60,13 +60,13 @@ func (t *Tree) search(nodeID int64, comparer Comparer, accuracy uint) (results, 
 			})
 			return res, nil
 		}
-		if node.RightChild == nil {
+		if !node.RightChild.Valid {
 			return results{result{
 				Filename: filename1,
 				Score:    cmp1,
 			}}, nil
 		}
-		res, err := t.search(*node.RightChild, comparer, accuracy)
+		res, err := t.search(node.RightChild.Int64, comparer, accuracy)
 		if err != nil {
 			return nil, err
 		}
@@ -84,17 +84,17 @@ func (t *Tree) search(nodeID int64, comparer Comparer, accuracy uint) (results, 
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		if node.LeftChild == nil {
+		if !node.LeftChild.Valid {
 			return
 		}
-		res0, err0 = t.search(*node.LeftChild, comparer, accuracy)
+		res0, err0 = t.search(node.LeftChild.Int64, comparer, accuracy)
 	}()
 	go func() {
 		defer wg.Done()
-		if node.RightChild == nil {
+		if !node.RightChild.Valid {
 			return
 		}
-		res1, err1 = t.search(*node.RightChild, comparer, accuracy)
+		res1, err1 = t.search(node.RightChild.Int64, comparer, accuracy)
 	}()
 	wg.Wait()
 	if err0 != nil {

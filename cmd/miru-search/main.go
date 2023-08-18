@@ -9,7 +9,8 @@ import (
 //go:generate go run github.com/gqgs/argsgen
 
 type options struct {
-	db         string `arg:"database name"`
+	storage    string `arg:"storage"`
+	db         string `arg:"database name (sqlite)"`
 	file, url  string `arg:"target file|url,+,!"`
 	accuracy   uint   `arg:"higher = more accurate = slower"`
 	limit      uint   `arg:"number of closest matches to display"`
@@ -21,6 +22,7 @@ type options struct {
 
 func main() {
 	o := options{
+		storage:    "sqlite",
 		db:         os.Getenv("MIRU_DB"),
 		accuracy:   2,
 		limit:      10,

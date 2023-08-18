@@ -11,7 +11,8 @@ import (
 
 func (o *options) flagSet() *flag.FlagSet {
     flagSet := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-    flagSet.StringVar(&o.db, "db", o.db, "database name")
+    flagSet.StringVar(&o.storage, "storage", o.storage, "storage")
+    flagSet.StringVar(&o.db, "db", o.db, "database name (sqlite)")
     flagSet.StringVar(&o.file, "file", o.file, "target file|url")
     flagSet.StringVar(&o.file, "url", o.file, "target file|url")
     flagSet.UintVar(&o.accuracy, "accuracy", o.accuracy, "higher = more accurate = slower")

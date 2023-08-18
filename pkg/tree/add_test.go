@@ -17,7 +17,7 @@ func Benchmark_Add(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	storage, err := storage.NewSqliteStorage("file::memory:", compressor, cache.New(0))
+	storage, err := storage.NewStorage("sqlite", "file::memory:", compressor, cache.New(0))
 	if err != nil {
 		b.Fatal(err)
 	}

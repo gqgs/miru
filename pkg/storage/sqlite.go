@@ -18,7 +18,7 @@ type sqliteStorage struct {
 }
 
 // Should be closed after being used
-func NewSqliteStorage(dbName string, compressor compress.Compressor, cache cache.Cache) (*sqliteStorage, error) {
+func newSqliteStorage(dbName string, compressor compress.Compressor, cache cache.Cache) (*sqliteStorage, error) {
 	db, err := sql.Open("sqlite3", dbName+"?_synchronous=off&_journal_mode=off&cache=shared")
 	if err != nil {
 		return nil, err
@@ -72,19 +72,19 @@ func (s *sqliteStorage) Get(nodeID int64) (*Node, error) {
 		}
 		return nil, err
 	}
-	if node.LeftObject != nil {
-		decompressed, err := s.compressor.Decompress(*node.LeftObject)
+	if len(node.LeftObject) > 0 {
+		decompressed, err := s.compressor.Decompress(node.LeftObject)
 		if err != nil {
 			return nil, err
 		}
-		*node.LeftObject = decompressed
+		node.LeftObject = decompressed
 	}
-	if node.RightObject != nil {
-		decompressed, err := s.compressor.Decompress(*node.RightObject)
+	if len(node.RightObject) > 0 {
+		decompressed, err := s.compressor.Decompress(node.RightObject)
 		if err != nil {
 			return nil, err
 		}
-		*node.RightObject = decompressed
+		node.RightObject = decompressed
 	}
 
 	s.cache.Add(nodeID, node)

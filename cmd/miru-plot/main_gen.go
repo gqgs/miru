@@ -10,7 +10,8 @@ import (
 
 func (o *options) flagSet() *flag.FlagSet {
     flagSet := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-    flagSet.StringVar(&o.db, "db", o.db, "database name")
+    flagSet.StringVar(&o.storage, "storage", o.storage, "storage")
+    flagSet.StringVar(&o.db, "db", o.db, "database name (sqlite)")
     flagSet.StringVar(&o.out, "out", o.out, "output file")
     flagSet.StringVar(&o.compressor, "compressor", o.compressor, "compression algorithm")
     return flagSet

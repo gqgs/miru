@@ -23,10 +23,10 @@ func (t *Tree) add(nodeID int64, comparer Comparer) error {
 	}
 
 	var cmp0 float64
-	if node.LeftObject == nil {
+	if len(node.LeftObject) == 0 {
 		return t.storage.SetObject(nodeID, storage.Left, comparer)
 	}
-	if cmp0, _, err = comparer.Compare(*node.LeftObject); err != nil {
+	if cmp0, _, err = comparer.Compare(node.LeftObject); err != nil {
 		return err
 	}
 	if cmp0 == 0 {
@@ -34,10 +34,10 @@ func (t *Tree) add(nodeID int64, comparer Comparer) error {
 	}
 
 	var cmp1 float64
-	if node.RightObject == nil {
+	if len(node.RightObject) == 0 {
 		return t.storage.SetObject(nodeID, storage.Right, comparer)
 	}
-	if cmp1, _, err = comparer.Compare(*node.RightObject); err != nil {
+	if cmp1, _, err = comparer.Compare(node.RightObject); err != nil {
 		return err
 	}
 	if cmp1 == 0 {
@@ -45,21 +45,21 @@ func (t *Tree) add(nodeID int64, comparer Comparer) error {
 	}
 
 	if cmp0 < cmp1 {
-		if node.LeftChild == nil {
+		if !node.LeftChild.Valid {
 			lastID, err := t.storage.NewNode(comparer)
 			if err != nil {
 				return err
 			}
 			return t.storage.SetChild(nodeID, storage.Left, lastID)
 		}
-		return t.add(*node.LeftChild, comparer)
+		return t.add(node.LeftChild.Int64, comparer)
 	}
-	if node.RightChild == nil {
+	if !node.RightChild.Valid {
 		lastID, err := t.storage.NewNode(comparer)
 		if err != nil {
 			return err
 		}
 		return t.storage.SetChild(nodeID, storage.Right, lastID)
 	}
-	return t.add(*node.RightChild, comparer)
+	return t.add(node.RightChild.Int64, comparer)
 }

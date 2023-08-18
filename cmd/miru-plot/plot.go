@@ -14,11 +14,11 @@ func plot(o options) error {
 	if err != nil {
 		return err
 	}
-	sqliteStorage, err := storage.NewSqliteStorage(o.db, compressor, cache.New(0))
+	storage, err := storage.NewStorage(o.storage, o.db, compressor, cache.New(0))
 	if err != nil {
 		return err
 	}
-	defer sqliteStorage.Close()
+	defer storage.Close()
 
 	file, err := os.Create(o.out)
 	if err != nil {
@@ -26,5 +26,5 @@ func plot(o options) error {
 	}
 	defer file.Close()
 
-	return tree.New(sqliteStorage).Plot(file)
+	return tree.New(storage).Plot(file)
 }
