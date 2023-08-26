@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"encoding"
+	"errors"
 
 	"github.com/gqgs/miru/pkg/cache"
 	"github.com/gqgs/miru/pkg/compress"
@@ -53,8 +54,7 @@ func newSqliteStorage(dbName string, compressor compress.Compressor, cache cache
 }
 
 func (s *sqliteStorage) Close() error {
-	_ = s.stmt.Close()
-	return s.db.Close()
+	return errors.Join(s.stmt.Close(), s.db.Close())
 }
 
 func (s *sqliteStorage) Get(nodeID int64) (*Node, error) {
