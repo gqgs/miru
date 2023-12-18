@@ -10,7 +10,7 @@ require (
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/valyala/gozstd v1.16.0
-	golang.org/x/sys v0.1.0
+	golang.org/x/sys v0.15.0
 )
 
 require (
@@ -19,6 +19,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
+	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/term v0.15.0 // indirect
 )
