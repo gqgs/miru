@@ -1,6 +1,7 @@
 module github.com/gqgs/miru
 
 go 1.21
+toolchain go1.24.1
 
 require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da
@@ -10,7 +11,7 @@ require (
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/schollz/progressbar/v3 v3.8.6
 	github.com/valyala/gozstd v1.16.0
-	golang.org/x/sys v0.28.0
+	golang.org/x/sys v0.30.0
 )
 
 require (
@@ -19,6 +20,6 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
+	golang.org/x/term v0.29.0 // indirect
 )
