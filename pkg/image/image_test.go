@@ -3,6 +3,7 @@ package image
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"testing"
 )
@@ -93,7 +94,7 @@ func Test_compare(t *testing.T) {
 			if err != nil {
 				log.Fatalf("%s: %s", err, tt.filename2)
 			}
-			if got := compare(img1.Hist, img2.Hist); got != tt.want {
+			if got := compare(img1.Hist, img2.Hist); math.Abs(got-tt.want) > 1e-5 {
 				t.Errorf("Compare() = %v, want %v", got, tt.want)
 			}
 		})

@@ -145,6 +145,14 @@ func compare(h1, h2 *Histogram) float64 {
 }
 
 func compareHist(h1, h2 *Histogram) float32 {
+	if cpu.X86.HasAVX512F {
+		return avx.CompareHistAVX512(
+			h1.normalizedRed, h2.normalizedRed,
+			h1.normalizedGreen, h2.normalizedGreen,
+			h1.normalizedBlue, h2.normalizedBlue,
+		)
+	}
+
 	if cpu.X86.HasAVX2 {
 		return avx.CompareHist(
 			h1.normalizedRed, h2.normalizedRed,
